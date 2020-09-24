@@ -1,0 +1,12 @@
+Code:
+- Accensus
+
+Sprites:
+- Tim Kaminsky (https://www.artstation.com/artwork/l5BXo)
+ + Pickup sprite by Mor'ladim.
+
+Sounds:
+- Doom 2016 (id Software / Bethesda)
+
+Name Idea:
+- Yholl

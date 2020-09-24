@@ -1,0 +1,462 @@
+version "4.0"
+
+class GungnirHandler : EventHandler
+{
+	override void CheckReplacement(ReplaceEvent e)
+	{
+		if (!e.Replacement)
+		{
+			return;
+		}
+
+		switch (e.Replacement.GetClassName())
+		{
+			case 'BFG9K':
+			case 'RocketBoxRandom':
+				if (random() <= 128)
+				{
+					e.Replacement = "HDGungnir";
+					e.IsFinal = true;
+				}
+				break;
+		}
+	}
+}
+
+class HDGungnir : HDWeapon
+{
+	enum GungnirProperties
+	{
+		GNProp_Battery,
+		GNProp_Charge,
+		GNProp_Timer,
+		GNProp_LoadType
+	}
+
+	override bool AddSpareWeapon(actor newowner) {return AddSpareWeaponRegular(newowner);}
+	override HDWeapon GetSpareWeapon(actor newowner ,bool reverse, bool doselect) { return GetSpareWeaponRegular(newowner, reverse, doselect); }
+	override double GunMass() { return WeaponStatus[GNProp_Battery] >= 0 ? 12 : 11; }
+	override double WeaponBulk() { return 166 + (WeaponStatus[GNProp_Battery] >= 0 ? ENC_BATTERY_LOADED : 0); }
+	override string, double GetPickupSprite() { return "GNGRZ0", 0.8; }
+	override void InitializeWepStats(bool idfa)
+	{
+		WeaponStatus[GNProp_Battery] = 20;
+		WeaponStatus[GNProp_Charge] = MaxCharge;
+		WeaponStatus[GNProp_Timer] = 0;
+	}
+
+	override void DrawHUDStuff(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl)
+	{
+		if (sb.HudLevel == 1)
+		{
+			sb.DrawBattery(-54, -4, sb.DI_SCREEN_CENTER_BOTTOM, reloadorder: true);
+			sb.DrawNum(hpl.CountInv("HDBattery"), -46, -8, sb.DI_SCREEN_CENTER_BOTTOM);
+		}
+
+		int BatteryCharge = hdw.WeaponStatus[GNProp_Battery];
+		if(BatteryCharge > 0)
+		{
+			sb.DrawWepNum(BatteryCharge, 20, posy: -10);
+		}
+		else
+		{
+			sb.DrawString(sb.mAmountFont, "00000", (-16, -14), sb.DI_TEXT_ALIGN_RIGHT | sb.DI_TRANSLATABLE | sb.DI_SCREEN_CENTER_BOTTOM, Font.CR_DARKGRAY);
+		}
+		sb.DrawWepNum(hdw.WeaponStatus[GNProp_Charge], MaxCharge);
+	}
+	override string GetHelpText(){
+		return WEPHELP_FIRE.."  Shoot/Charge\n"
+		..WEPHELP_ALTFIRE.."  Toggle harness\n"
+		..WEPHELP_RELOAD.."  Abort charge/Reload battery\n"
+		..WEPHELP_UNLOADUNLOAD;
+	}
+	override void DrawSightPicture(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl, bool sightbob, vector2 bob, double fov, bool scopeview, actor hpc, string whichdot)
+	{
+		int cx,cy,cw,ch;
+		[cx,cy,cw,ch] = Screen.GetClipRect();
+		sb.SetClipRect(-16 + bob.x, -4 + bob.y, 32, 16, sb.DI_SCREEN_CENTER);
+		vector2 bobb = bob * 2;
+		bobb.y = clamp(bobb.y, -8,8);
+		sb.drawimage("frntsite", bobb, sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, alpha:0.9, scale: (1.6, 2));
+		sb.SetClipRect(cx, cy, cw, ch);
+		sb.drawimage("backsite", bob,sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, scale: (1.5, 1));
+	}
+
+	override void DropOneAmmo(int amt)
+	{
+		if (owner)
+		{
+			owner.A_DropInventory("HDBattery", 1);
+		}
+	}
+
+	const MaxCharge = 10;
+
+	Default
+	{
+		-HDWEAPON.FITSINBACKPACK
+		Weapon.SelectionOrder 300;
+		Weapon.SlotNumber 6;
+		Inventory.PickupMessage "You got the 'Gungnir' frag beam rifle.";
+		HDWeapon.BarrelSize 35, 1.6, 3;
+		Scale 0.5;
+		Tag "Gungnir";
+		HDWeapon.Refid "gnr";
+	}
+
+	States
+	{
+		Spawn:
+			GNGR Z -1;
+			Stop;
+		Ready:
+			GNGR A 1 A_WeaponReady(WRF_ALL);
+			Goto ReadyEnd;
+		Select0:
+			GNGR A 0;
+			Goto Select0BFG;
+		Deselect0:
+			GNGR A 0;
+			Goto Deselect0Big;
+		User3:
+			#### A 0 A_MagManager("HDBattery");
+			Goto Ready;
+		Fire:
+			#### A 0
+			{
+				invoker.WeaponStatus[GNProp_Timer] = 0;
+				if (invoker.WeaponStatus[GNProp_Charge] >= MaxCharge)
+				{
+					return ResolveState("Shoot");
+				}
+				else if (invoker.WeaponStatus[GNProp_Charge] < MaxCharge && invoker.WeaponStatus[GNProp_Battery] > 0)
+				{ 
+					return ResolveState("Charge");
+				}
+
+				return ResolveState("Nope");
+			}
+			Stop;
+		Charge:
+			#### B 1;
+		ActualCharge:
+			#### C 6
+			{
+				if (PressingReload() || invoker.WeaponStatus[GNProp_Battery] <= 0 || invoker.WeaponStatus[GNProp_Charge] >= MaxCharge)
+				{
+					SetWeaponState("Reload4");
+					return;
+				}
+
+				if (++invoker.WeaponStatus[GNProp_Timer] > 2)
+				{
+					invoker.WeaponStatus[GNProp_Timer] = 0;
+					if (!random(0, 1))
+					{
+						invoker.WeaponStatus[GNProp_Battery]--;
+					}
+					invoker.WeaponStatus[GNProp_Charge]++;
+				}
+
+				A_WeaponBusy(false);
+				A_StartSound("weapons/bfgcharge", CHAN_WEAPON);
+				BFG9k.Spark(self, 1, height - 10);
+				A_WeaponReady(WRF_NOFIRE);
+			}
+			Loop;
+		Reload:
+			#### A 0
+			{
+				if (invoker.weaponstatus[GNProp_Battery] >= 20 || !CheckInventory("HDBattery", 1))
+				{
+					SetWeaponState("Nope");
+					return;
+				}
+				invoker.WeaponStatus[GNProp_LoadType] = 1;
+			}
+			Goto Reload1;
+		Unload:
+			#### A 0
+			{
+				if (invoker.WeaponStatus[GNProp_Battery] == -1)
+				{
+					SetWeaponState("Nope");
+					return;
+				}
+				invoker.WeaponStatus[GNProp_LoadType] = 0;
+			}
+			Goto Reload1;
+		Reload1:
+			#### A 4;
+			#### B 2 Offset(0, 36) A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
+			#### C 2 Offset(0, 38) A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
+			#### C 4 Offset(0, 40)
+			{
+				A_MuzzleClimb(-frandom(1.2, 2.4),frandom(1.2, 2.4));
+				A_StartSound("weapons/bfgclick2", 8);
+			}
+			#### C 2 Offset(0, 42)
+			{
+				A_MuzzleClimb(-frandom(1.2, 2.4),frandom(1.2, 2.4));
+				A_StartSound("weapons/bfgopen", 8);
+				if(invoker.WeaponStatus[GNProp_Battery] >= 0)
+				{
+					if (PressingReload() || PressingUnload())
+					{
+						HDMagAmmo.GiveMag(self,"HDBattery", invoker.WeaponStatus[GNProp_Battery]);
+						A_SetTics(10);
+					}
+					else
+					{
+						HDMagAmmo.SpawnMag(self, "HDBattery", invoker.WeaponStatus[GNProp_Battery]);
+						A_SetTics(4);
+					}
+				}
+				invoker.WeaponStatus[GNProp_Battery] = -1;
+			}
+			Goto BatteryOut;
+		BatteryOut:
+			#### C 4 Offset(0, 42)
+			{
+				if (invoker.WeaponStatus[GNProp_LoadType] == 0)
+				{
+					SetWeaponState("Reload3");
+				}
+				else
+				{
+					A_StartSound("weapons/pocket", 9);
+				}
+			}
+			#### C 12;
+			#### C 12 Offset(0, 42) A_StartSound("weapons/bfgbattout",8);
+			#### C 10 Offset(0, 36) A_StartSound("weapons/bfgbattpop",8);
+			#### C 0
+			{
+				let Battery = HDMagAmmo(findinventory("HDBattery"));
+				if (Battery && Battery.Amount > 0)
+				{
+					invoker.WeaponStatus[GNProp_Battery] = Battery.TakeMag(true);
+				}
+				else
+				{
+					SetWeaponState("Reload3");
+					return;
+				}
+			}
+		Reload3:
+			#### C 6 Offset(0, 38) A_StartSound("weapons/bfgopen", 8);
+			#### C 8 Offset(0, 37) A_StartSound("weapons/bfgclick2", 8);
+			#### C 2 Offset(0, 38);
+			#### B 2 Offset(0, 36);
+			#### A 2 Offset(0, 34);
+			#### A 12;
+			Goto Ready;
+		Reload4:
+			#### CBA 2;
+			Goto Ready;
+		Shoot:
+			#### F 1 Offset(0, 44)
+			{
+				A_StartSound("Gungnir/DeathRayFire", CHAN_WEAPON);
+				A_RailAttack(1300, 0, false, "", "", RGF_NOPIERCING | RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 0, 0, 0, 0, "GungnirRaySmoke");
+				A_AlertMonsters();
+				A_MuzzleClimb(0, 0, -0.2, -0.8, -frandom(0.5, 0.9), -frandom(3.2, 4.0), -frandom(0.5, 0.9), -frandom(3.2, 4.0));
+				invoker.WeaponStatus[GNProp_Charge] = 0;
+			}
+			#### B 2 Offset(0, 38);
+			#### B 1 Offset(0, 32);
+			Goto Ready;
+	}
+}
+
+class GungnirRayImpact : Actor
+{
+	Default
+	{
+		+FORCEDECAL
+		+PUFFGETSOWNER
+		+ALWAYSPUFF
+		+PUFFONACTORS
+		+NOINTERACTION
+		+BLOODLESSIMPACT
+		+FORCERADIUSDMG
+		+NOBLOOD
+		Decal "GungnirScorch";
+		DamageType "BFGBallAttack";
+	}
+
+	States
+	{
+		Spawn:
+			TNT1 A 70 NoDelay
+			{
+				A_Explode(random(100, 200), 120, 0, false);
+				A_StartSound("Gungnir/RayHit", attenuation: 0.5);
+				DistantQuaker.Quake(self, 2, 50, 16384, 10, 256, 512, 128);
+
+				// Horizontal ring.
+				for (int i = -180; i < 180; i += 4)
+				{
+					A_SpawnParticle(Color(0x84FF44), SPF_FULLBRIGHT | SPF_RELATIVE, 10, 32, i, 0, 0, 0, 12, 0, 0);
+				}
+				
+				// Ball.
+				for (int i = -180; i < 180; i += 6)
+				{
+					for (int j = -90 + 6; j < 90; j += 6)
+					{
+						A_SpawnParticle(Color(0xDFFF66), SPF_FULLBRIGHT | SPF_RELATIVE, 15, 16, i, 0, 0, 0, 4 * cos(j) * 1.2, 0, 4 * sin(j));
+					}
+				}
+
+				// Spears.
+				for (int i = 0; i < 10; ++i)
+				{
+					double pitch = frandom(-85.0, 85.0);
+					A_SpawnItemEx("GungnirRayImpactSpear", 0, 0, 0, random(25, 25) * cos(pitch), 0, random(20, 25) * sin(pitch), random(0, 360));
+				}
+			}
+			Stop;
+	}
+}
+
+class GungnirRaySmoke : Actor
+{
+	override void PostBeginPlay()
+	{
+		if (!random(0, 2))
+		{
+			A_SpawnItemEx("GungnirRaySmokeParticle");
+		}
+
+		A_SetRoll(random(0, 360));
+
+		Super.PostBeginPlay();
+	}
+
+	Default
+	{
+		StencilColor "88FF44";
+		RenderStyle "Stencil";
+		+NOINTERACTION
+		+ROLLSPRITE
+		Alpha 2.0;
+		Scale 0.005;
+	}
+
+	States
+	{
+		Spawn:
+			SMOK Z 1 Bright
+			{
+				A_FadeOut(0.035);
+				A_SetScale(Scale.X + 0.0001);
+				A_ChangeVelocity(frandom(-0.005, 0.005), frandom(-0.005, 0.005), frandom(-0.005, 0.005), CVF_RELATIVE);
+			}
+			Loop;
+	}
+}
+
+class GungnirRaySmokeParticle : Actor
+{
+	override void PostBeginPlay()
+	{
+		Lifetime = DefaultLifeTime = random(50, 80);
+		ParticleSize = frandom(2.0, 4.0);
+
+		Super.PostBeginPlay();
+	}
+
+	Default
+	{
+		+NOINTERACTION
+	}
+
+	double Lifetime;
+	double DefaultLifeTime;
+	double ParticleSize;
+
+	States
+	{
+		Spawn:
+			TNT1 A 1
+			{
+				A_SpawnParticle("88FF44", SPF_RELATIVE | SPF_FULLBRIGHT, 1, ParticleSize, startalphaf: Lifetime / DefaultLifeTime);
+				A_ChangeVelocity(frandom(-0.15, 0.15), frandom(-0.15, 0.15), frandom(-0.15, 0.15), CVF_RELATIVE);
+				if (Lifetime-- < 0) Destroy();
+			}
+			Loop;
+	}
+}
+
+class GungnirRayImpactSpear : Actor
+{
+	override void PostBeginPlay()
+	{
+		ReactionTime = int(ReactionTime * frandom(0.10, 0.5));
+
+		Super.PostBeginPlay();
+	}
+
+	Default
+	{
+		+NOINTERACTION
+		Gravity 0.6;
+		ReactionTime 35;
+	}
+
+	States
+	{
+		Spawn:
+			TNT1 A 1
+			{
+				if (!level.IsPointInLevel(pos)) Destroy();
+
+				vel *= 0.95;
+				vel.z -= 1.0 * Gravity;
+
+				A_SpawnItemEx("GungnirRaySpearSmoke");
+				A_CountDown();
+			}
+			Loop;
+	}
+}
+
+class GungnirRaySpearSmoke : Actor
+{
+	override void PostBeginPlay()
+	{
+		A_SetRoll(random(0, 360));
+
+		Super.PostBeginPlay();
+	}
+
+	override void Tick()
+	{
+		vel *= 0.88;
+
+		Super.Tick();
+	}
+
+	Default
+	{
+		Scale 0.02;
+		RenderStyle "Shaded";
+		StencilColor "B0FF55";
+		+BRIGHT
+		+NOINTERACTION
+		+ROLLSPRITE
+		+FORCEXYBILLBOARD
+	}
+
+	States
+	{
+		Spawn:
+			SMOK Z 1
+			{
+				A_FadeOut(0.03);
+				A_SetScale(Scale.X + 0.003);
+			}
+			Loop;
+	}
+}
