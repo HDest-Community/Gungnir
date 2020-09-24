@@ -265,7 +265,7 @@ class HDGungnir : HDWeapon
 			}
 			#### B 2 Offset(0, 38);
 			#### B 1 Offset(0, 32);
-			Goto Ready;
+			Goto Nope;
 	}
 }
 
