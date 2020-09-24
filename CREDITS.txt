@@ -6,7 +6,7 @@ Sprites:
  + Pickup sprite by Mor'ladim.
 
 Sounds:
-- Doom 2016 (id Software / Bethesda)
+- Ribbon (https://gamebanana.com/sounds/31093)
 
 Name Idea:
 - Yholl
