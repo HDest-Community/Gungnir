@@ -258,7 +258,7 @@ class HDGungnir : HDWeapon
 			#### F 1 Offset(0, 44)
 			{
 				A_StartSound("Gungnir/DeathRayFire", CHAN_WEAPON);
-				A_RailAttack(1300, 0, false, "", "", RGF_NOPIERCING | RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 0, 0, 0, 0, "GungnirRaySmoke");
+				A_RailAttack(random(900, 1400), 0, false, "", "", RGF_NOPIERCING | RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 0, 0, 0, 0, "GungnirRaySmoke");
 				A_AlertMonsters();
 				A_MuzzleClimb(0, 0, -0.2, -0.8, -frandom(0.5, 0.9), -frandom(3.2, 4.0), -frandom(0.5, 0.9), -frandom(3.2, 4.0));
 				invoker.WeaponStatus[GNProp_Charge] = 0;
