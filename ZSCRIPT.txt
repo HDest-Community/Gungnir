@@ -158,7 +158,7 @@ class HDGungnir : HDWeapon
 				}
 
 				A_WeaponBusy(false);
-				A_StartSound("weapons/bfgcharge", CHAN_WEAPON);
+				A_StartSound("weapons/bfgcharge", 8);
 				BFG9k.Spark(self, 1, height - 10);
 				A_WeaponReady(WRF_NOFIRE);
 			}
