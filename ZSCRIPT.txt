@@ -132,6 +132,19 @@ class HDGungnir : HDCellWeapon
 				return ResolveState("Nope");
 			}
 			Stop;
+		Shoot:
+			#### F 1 Bright Offset(0, 44)
+			{
+				A_Light0();
+				A_StartSound("Gungnir/DeathRayFire", CHAN_WEAPON);
+				A_RailAttack(random(900, 1400), 0, false, "", "", RGF_NOPIERCING | RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 0, 0, 0, 0, "GungnirRaySmoke");
+				A_AlertMonsters();
+				A_MuzzleClimb(0, 0, -0.2, -0.8, -frandom(0.5, 0.9), -frandom(3.2, 4.0), -frandom(0.5, 0.9), -frandom(3.2, 4.0));
+				invoker.WeaponStatus[GNProp_Charge] = 0;
+			}
+			#### B 2 Offset(0, 38);
+			#### B 1 Offset(0, 32);
+			Goto Nope;
 		Charge:
 			#### B 1;
 		ActualCharge:
@@ -249,19 +262,6 @@ class HDGungnir : HDCellWeapon
 		Reload4:
 			#### CBA 2;
 			Goto Ready;
-		Shoot:
-			#### F 1 Offset(0, 44)
-			{
-				A_Light0();
-				A_StartSound("Gungnir/DeathRayFire", CHAN_WEAPON);
-				A_RailAttack(random(900, 1400), 0, false, "", "", RGF_NOPIERCING | RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 0, 0, 0, 0, "GungnirRaySmoke");
-				A_AlertMonsters();
-				A_MuzzleClimb(0, 0, -0.2, -0.8, -frandom(0.5, 0.9), -frandom(3.2, 4.0), -frandom(0.5, 0.9), -frandom(3.2, 4.0));
-				invoker.WeaponStatus[GNProp_Charge] = 0;
-			}
-			#### B 2 Offset(0, 38);
-			#### B 1 Offset(0, 32);
-			Goto Nope;
 	}
 }
 
@@ -286,7 +286,7 @@ class GungnirRayImpact : Actor
 		Spawn:
 			TNT1 A 16 NoDelay
 			{
-				A_Explode(random(100, 200), 120, 0, false);
+				A_Explode(random(100, 200), 180, 0, false);
 				A_StartSound("Gungnir/RayHit", attenuation: 0.5);
 				DistantQuaker.Quake(self, 2, 50, 16384, 10, 256, 512, 128);
 
