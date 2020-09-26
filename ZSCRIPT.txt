@@ -15,7 +15,6 @@ class GungnirHandler : EventHandler
 				if (random[gungrand]() <= 128)
 				{
 					e.Replacement = "HDGungnir";
-					e.IsFinal = true;
 				}
 				break;
 		}
