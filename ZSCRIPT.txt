@@ -12,7 +12,7 @@ class GungnirHandler : EventHandler
 		switch (e.Replacement.GetClassName())
 		{
 			case 'BFG9K':
-				if (random() <= 128)
+				if (random[gungrand]() <= 128)
 				{
 					e.Replacement = "HDGungnir";
 					e.IsFinal = true;
