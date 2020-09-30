@@ -98,7 +98,8 @@ class HDGungnir : HDCellWeapon
 	{
 		-HDWEAPON.FITSINBACKPACK
 		Weapon.SelectionOrder 300;
-		Weapon.SlotNumber 6;
+		Weapon.SlotNumber 7;
+		Weapon.SlotPriority 1.5;
 		Inventory.PickupMessage "You got the 'Gungnir' frag beam rifle.";
 		HDWeapon.BarrelSize 35, 1.6, 3;
 		Scale 0.5;
