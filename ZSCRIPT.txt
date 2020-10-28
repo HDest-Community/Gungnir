@@ -12,9 +12,9 @@ class GungnirHandler : StaticEventHandler
 		switch (e.Replacement.GetClassName())
 		{
 			case 'BFG9K':
-				if (random[gungrand]() <= 128)
+				if (random[gungrand]() <= 96)
 				{
-					e.Replacement = "HDGungnir";
+					e.Replacement = "GungnirRandom";
 				}
 				break;
 		}
@@ -32,8 +32,16 @@ class GungnirHandler : StaticEventHandler
 
 class HDGungnir : HDCellWeapon
 {
+	enum GungnirFlags
+	{
+		GNF_Accelerator = 1,
+		GNF_Capacitor = 2,
+		GNF_Processor = 4,
+	}
+
 	enum GungnirProperties
 	{
+		GNProp_Flags,
 		GNProp_Battery,
 		GNProp_Charge,
 		GNProp_Timer,
@@ -48,12 +56,46 @@ class HDGungnir : HDCellWeapon
 	override void InitializeWepStats(bool idfa)
 	{
 		WeaponStatus[GNProp_Battery] = 20;
-		WeaponStatus[GNProp_Charge] = MaxCharge;
+		WeaponStatus[GNProp_Charge] = GetMaxCharge();
 		WeaponStatus[GNProp_Timer] = 0;
 	}
 	override void LoadoutConfigure(string input)
 	{
+		if (GetLoadoutVar(input, "accel", 1) > 0)
+		{
+			WeaponStatus[GNProp_Flags] |= GNF_Accelerator;
+		}
+		if (GetLoadoutVar(input, "cap", 1) > 0)
+		{
+			WeaponStatus[GNProp_Flags] |= GNF_Capacitor;
+		}
+		if (GetLoadoutVar(input, "proc", 1) > 0)
+		{
+			WeaponStatus[GNProp_Flags] |= GNF_Processor;
+		}
+
 		WeaponStatus[GNProp_Battery] = 20;
+	}
+
+	override string GetHelpText()
+	{
+		return WEPHELP_FIRE.."  Shoot\n"
+		..WEPHELP_ALTFIRE.."  Charge\n"
+		..WEPHELP_RELOAD.."  Abort charge/Reload battery\n"
+		..WEPHELP_UNLOADUNLOAD;
+	}
+
+	override string PickupMessage()
+	{
+		string AccStr = WeaponStatus[GNProp_Flags] & GNF_Accelerator ? "accelerated " : "";
+		string CapStr = WeaponStatus[GNProp_Flags] & GNF_Capacitor ? "double-capacity " : "";
+		string ProcStr = WeaponStatus[GNProp_Flags] & GNF_Processor ? " with high efficiency processor" : "";
+		return String.Format("You got the %s%s'Gungnir' frag beam rifle%s.", AccStr, CapStr, ProcStr);
+	}
+
+	protected clearscope int GetMaxCharge()
+	{
+		return WeaponStatus[GNProp_Flags] & GNF_Capacitor ? 20 : 10;
 	}
 
 	override void DrawHUDStuff(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl)
@@ -73,13 +115,9 @@ class HDGungnir : HDCellWeapon
 		{
 			sb.DrawString(sb.mAmountFont, "00000", (-16, -14), sb.DI_TEXT_ALIGN_RIGHT | sb.DI_TRANSLATABLE | sb.DI_SCREEN_CENTER_BOTTOM, Font.CR_DARKGRAY);
 		}
-		sb.DrawWepNum(hdw.WeaponStatus[GNProp_Charge], MaxCharge);
+		sb.DrawWepNum(hdw.WeaponStatus[GNProp_Charge], GetMaxCharge());
 	}
-	override string GetHelpText(){
-		return WEPHELP_FIRE.."  Shoot/Charge\n"
-		..WEPHELP_RELOAD.."  Abort charge/Reload battery\n"
-		..WEPHELP_UNLOADUNLOAD;
-	}
+
 	override void DrawSightPicture(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl, bool sightbob, vector2 bob, double fov, bool scopeview, actor hpc, string whichdot)
 	{
 		int cx,cy,cw,ch;
@@ -92,15 +130,12 @@ class HDGungnir : HDCellWeapon
 		sb.drawimage("backsite", bob,sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, scale: (1.5, 1));
 	}
 
-	const MaxCharge = 10;
-
 	Default
 	{
 		-HDWEAPON.FITSINBACKPACK
 		Weapon.SelectionOrder 300;
 		Weapon.SlotNumber 7;
 		Weapon.SlotPriority 1.5;
-		Inventory.PickupMessage "You got the 'Gungnir' frag beam rifle.";
 		HDWeapon.BarrelSize 35, 1.6, 3;
 		Scale 0.5;
 		Tag "Gungnir";
@@ -128,11 +163,18 @@ class HDGungnir : HDCellWeapon
 			#### A 0
 			{
 				invoker.WeaponStatus[GNProp_Timer] = 0;
-				if (invoker.WeaponStatus[GNProp_Charge] >= MaxCharge)
+				if (invoker.WeaponStatus[GNProp_Charge] >= 10)
 				{
 					return ResolveState("Shoot");
 				}
-				else if (invoker.WeaponStatus[GNProp_Charge] < MaxCharge && invoker.WeaponStatus[GNProp_Battery] > 0)
+				
+				return ResolveState("Nope");
+			}
+			Stop;
+		AltFire:
+			#### A 0
+			{
+				if (invoker.WeaponStatus[GNProp_Charge] < invoker.GetMaxCharge() && invoker.WeaponStatus[GNProp_Battery] > 0)
 				{ 
 					return ResolveState("Charge");
 				}
@@ -145,10 +187,10 @@ class HDGungnir : HDCellWeapon
 			{
 				A_Light0();
 				A_StartSound("Gungnir/DeathRayFire", CHAN_WEAPON);
-				A_RailAttack(random(500, 800), 0, false, "", "", RGF_NOPIERCING | RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 0, 0, 0, 0, "GungnirRaySmoke");
+				A_RailAttack(random(500, 800), 0, false, "", "", RGF_NOPIERCING | RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 8400, 0, 2.0, 0, "GungnirRaySmoke");
 				A_AlertMonsters();
 				A_MuzzleClimb(0, 0, -0.2, -0.8, -frandom(0.5, 0.9), -frandom(3.2, 4.0), -frandom(0.5, 0.9), -frandom(3.2, 4.0));
-				invoker.WeaponStatus[GNProp_Charge] = 0;
+				invoker.WeaponStatus[GNProp_Charge] -= 10;
 			}
 			#### B 2 Offset(0, 38);
 			#### B 1 Offset(0, 32);
@@ -158,16 +200,16 @@ class HDGungnir : HDCellWeapon
 		ActualCharge:
 			#### C 6
 			{
-				if (PressingReload() || invoker.WeaponStatus[GNProp_Battery] <= 0 || invoker.WeaponStatus[GNProp_Charge] >= MaxCharge)
+				if (PressingReload() || invoker.WeaponStatus[GNProp_Battery] <= 0 || invoker.WeaponStatus[GNProp_Charge] >= invoker.GetMaxCharge())
 				{
 					SetWeaponState("Reload4");
 					return;
 				}
 
-				if (++invoker.WeaponStatus[GNProp_Timer] > 2)
+				if (++invoker.WeaponStatus[GNProp_Timer] > (invoker.WeaponStatus[GNProp_Flags] & GNF_Accelerator ? 1 : 2))
 				{
 					invoker.WeaponStatus[GNProp_Timer] = 0;
-					if (!random(0, 1))
+					if (!random(0, invoker.WeaponStatus[GNProp_Flags] & GNF_Processor ? 2 : 1))
 					{
 						invoker.WeaponStatus[GNProp_Battery]--;
 					}
@@ -270,6 +312,41 @@ class HDGungnir : HDCellWeapon
 		Reload4:
 			#### CBA 2;
 			Goto Ready;
+	}
+}
+
+class GungnirRandom : IdleDummy
+{
+	States
+	{
+		Spawn:
+			TNT1 A 0 nodelay
+			{
+				let wpn = HDGungnir(Spawn("HDGungnir", pos, ALLOW_REPLACE));
+				if (!wpn)
+				{
+					return;
+				}
+
+				wpn.special = special;
+				for (int i = 0; i < 5; ++i)
+				{
+					wpn.Args[i] = Args[i];
+				}
+				if (!random(0, 3))
+				{
+					wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Accelerator;
+				}
+				if (!random(0, 3))
+				{
+					wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Capacitor;
+				}
+				if (!random(0, 3))
+				{
+					wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Processor;
+				}
+			}
+			Stop;
 	}
 }
 
