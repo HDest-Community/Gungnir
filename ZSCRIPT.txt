@@ -311,7 +311,7 @@ class HDGungnir : HDCellWeapon
 			Goto Ready;
 		Reload4:
 			#### CBA 2;
-			Goto Ready;
+			Goto Nope;
 	}
 }
 
