@@ -95,7 +95,12 @@ class HDGungnir : HDCellWeapon
 
 	protected clearscope int GetMaxCharge()
 	{
-		return WeaponStatus[GNProp_Flags] & GNF_Capacitor ? 20 : 10;
+		return WeaponStatus[GNProp_Flags] & GNF_Capacitor ? 2 : 1;
+	}
+
+	protected clearscope int GetBatteryCost()
+	{
+		return WeaponStatus[GNProp_Flags] & GNF_Processor ? 3 : 5;
 	}
 
 	override void DrawHUDStuff(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl)
@@ -163,7 +168,7 @@ class HDGungnir : HDCellWeapon
 			#### A 0
 			{
 				invoker.WeaponStatus[GNProp_Timer] = 0;
-				if (invoker.WeaponStatus[GNProp_Charge] >= 10)
+				if (invoker.WeaponStatus[GNProp_Charge] > 0)
 				{
 					return ResolveState("Shoot");
 				}
@@ -174,7 +179,7 @@ class HDGungnir : HDCellWeapon
 		AltFire:
 			#### A 0
 			{
-				if (invoker.WeaponStatus[GNProp_Charge] < invoker.GetMaxCharge() && invoker.WeaponStatus[GNProp_Battery] > 0)
+				if (invoker.WeaponStatus[GNProp_Charge] < invoker.GetMaxCharge() && invoker.WeaponStatus[GNProp_Battery] >= invoker.GetBatteryCost())
 				{ 
 					return ResolveState("Charge");
 				}
@@ -190,7 +195,7 @@ class HDGungnir : HDCellWeapon
 				A_RailAttack(random(500, 800), 0, false, "", "", RGF_NOPIERCING | RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 8400, 0, 2.0, 0, "GungnirRaySmoke");
 				A_AlertMonsters();
 				A_MuzzleClimb(0, 0, -0.2, -0.8, -frandom(0.5, 0.9), -frandom(3.2, 4.0), -frandom(0.5, 0.9), -frandom(3.2, 4.0));
-				invoker.WeaponStatus[GNProp_Charge] -= 10;
+				invoker.WeaponStatus[GNProp_Charge] -= 1;
 			}
 			#### B 2 Offset(0, 38);
 			#### B 1 Offset(0, 32);
@@ -200,19 +205,17 @@ class HDGungnir : HDCellWeapon
 		ActualCharge:
 			#### C 6
 			{
-				if (PressingReload() || invoker.WeaponStatus[GNProp_Battery] <= 0 || invoker.WeaponStatus[GNProp_Charge] >= invoker.GetMaxCharge())
+				if (PressingReload() || invoker.WeaponStatus[GNProp_Battery] < invoker.GetBatteryCost() || invoker.WeaponStatus[GNProp_Charge] == invoker.GetMaxCharge())
 				{
+					invoker.WeaponStatus[GNProp_Timer] = 0;
 					SetWeaponState("Reload4");
 					return;
 				}
 
-				if (++invoker.WeaponStatus[GNProp_Timer] > (invoker.WeaponStatus[GNProp_Flags] & GNF_Accelerator ? 1 : 2))
+				if (++invoker.WeaponStatus[GNProp_Timer] > (invoker.WeaponStatus[GNProp_Flags] & GNF_Accelerator ? 10 : 18))
 				{
 					invoker.WeaponStatus[GNProp_Timer] = 0;
-					if (!random(0, invoker.WeaponStatus[GNProp_Flags] & GNF_Processor ? 2 : 1))
-					{
-						invoker.WeaponStatus[GNProp_Battery]--;
-					}
+					invoker.WeaponStatus[GNProp_Battery] -= invoker.GetBatteryCost();
 					invoker.WeaponStatus[GNProp_Charge]++;
 				}
 
