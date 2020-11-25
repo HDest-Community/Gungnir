@@ -49,7 +49,7 @@ class HDGungnir : HDCellWeapon
 	}
 
 	override bool AddSpareWeapon(actor newowner) {return AddSpareWeaponRegular(newowner);}
-	override HDWeapon GetSpareWeapon(actor newowner ,bool reverse, bool doselect) { return GetSpareWeaponRegular(newowner, reverse, doselect); }
+	override HDWeapon GetSpareWeapon(actor newowner, bool reverse, bool doselect) { return GetSpareWeaponRegular(newowner, reverse, doselect); }
 	override double GunMass() { return WeaponStatus[GNProp_Battery] >= 0 ? 12 : 11; }
 	override double WeaponBulk() { return 166 + (WeaponStatus[GNProp_Battery] >= 0 ? ENC_BATTERY_LOADED : 0); }
 	override string, double GetPickupSprite() { return "GNGRZ0", 0.8; }
@@ -125,14 +125,14 @@ class HDGungnir : HDCellWeapon
 
 	override void DrawSightPicture(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl, bool sightbob, vector2 bob, double fov, bool scopeview, actor hpc, string whichdot)
 	{
-		int cx,cy,cw,ch;
-		[cx,cy,cw,ch] = Screen.GetClipRect();
+		int cx, cy, cw, ch;
+		[cx, cy, cw, ch] = Screen.GetClipRect();
 		sb.SetClipRect(-16 + bob.x, -4 + bob.y, 32, 16, sb.DI_SCREEN_CENTER);
 		vector2 bobb = bob * 2;
-		bobb.y = clamp(bobb.y, -8,8);
-		sb.drawimage("frntsite", bobb, sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, alpha:0.9, scale: (1.6, 2));
+		bobb.y = clamp(bobb.y, -8, 8);
+		sb.drawimage("frntsite", bobb, sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, alpha: 0.9, scale: (1.6, 2));
 		sb.SetClipRect(cx, cy, cw, ch);
-		sb.drawimage("backsite", bob,sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, scale: (1.5, 1));
+		sb.drawimage("backsite", bob, sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, scale: (1.5, 1));
 	}
 
 	Default
@@ -253,18 +253,18 @@ class HDGungnir : HDCellWeapon
 			#### C 2 Offset(0, 38) A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
 			#### C 4 Offset(0, 40)
 			{
-				A_MuzzleClimb(-frandom(1.2, 2.4),frandom(1.2, 2.4));
+				A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
 				A_StartSound("weapons/bfgclick2", 8);
 			}
 			#### C 2 Offset(0, 42)
 			{
-				A_MuzzleClimb(-frandom(1.2, 2.4),frandom(1.2, 2.4));
+				A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
 				A_StartSound("weapons/bfgopen", 8);
 				if(invoker.WeaponStatus[GNProp_Battery] >= 0)
 				{
 					if (PressingReload() || PressingUnload())
 					{
-						HDMagAmmo.GiveMag(self,"HDBattery", invoker.WeaponStatus[GNProp_Battery]);
+						HDMagAmmo.GiveMag(self, "HDBattery", invoker.WeaponStatus[GNProp_Battery]);
 						A_SetTics(10);
 					}
 					else
@@ -289,8 +289,8 @@ class HDGungnir : HDCellWeapon
 				}
 			}
 			#### C 12;
-			#### C 12 Offset(0, 42) A_StartSound("weapons/bfgbattout",8);
-			#### C 10 Offset(0, 36) A_StartSound("weapons/bfgbattpop",8);
+			#### C 12 Offset(0, 42) A_StartSound("weapons/bfgbattout", 8);
+			#### C 10 Offset(0, 36) A_StartSound("weapons/bfgbattpop", 8);
 			#### C 0
 			{
 				let Battery = HDMagAmmo(findinventory("HDBattery"));
