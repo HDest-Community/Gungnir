@@ -112,11 +112,11 @@ class HDGungnir : HDCellWeapon
 		}
 
 		int BatteryCharge = hdw.WeaponStatus[GNProp_Battery];
-		if(BatteryCharge > 0)
+		if (BatteryCharge > 0)
 		{
 			sb.DrawWepNum(BatteryCharge, 20, posy: -10);
 		}
-		else
+		else if (BatteryCharge == 0)
 		{
 			sb.DrawString(sb.mAmountFont, "00000", (-16, -14), sb.DI_TEXT_ALIGN_RIGHT | sb.DI_TRANSLATABLE | sb.DI_SCREEN_CENTER_BOTTOM, Font.CR_DARKGRAY);
 		}
