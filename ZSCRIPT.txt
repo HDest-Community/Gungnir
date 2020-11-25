@@ -38,6 +38,8 @@ class HDGungnir : HDCellWeapon
 		GNF_Capacitor = 2,
 		GNF_Processor = 4,
 		GNF_Charger = 8,
+		GNF_Purifier = 16,
+		GNF_Demon = 1024,
 	}
 
 	enum GungnirProperties
@@ -102,7 +104,11 @@ class HDGungnir : HDCellWeapon
 		{
 			WeaponStatus[GNProp_Flags] |= GNF_Processor;
 		}
-		if (GetLoadoutVar(input, "charger", 1) > 0)
+		if (GetLoadoutVar(input, "chrg", 1) > 0)
+		{
+			WeaponStatus[GNProp_Flags] |= GNF_Charger;
+		}
+		if (GetLoadoutVar(input, "pur", 1) > 0)
 		{
 			WeaponStatus[GNProp_Flags] |= GNF_Charger;
 		}
@@ -127,7 +133,8 @@ class HDGungnir : HDCellWeapon
 		string AccStr = WeaponStatus[GNProp_Flags] & GNF_Accelerator ? "accelerated " : "";
 		string CapStr = WeaponStatus[GNProp_Flags] & GNF_Capacitor ? "double-capacity " : "";
 		string ProcStr = WeaponStatus[GNProp_Flags] & GNF_Processor ? " with high efficiency processor" : "";
-		string ChrgStr = WeaponStatus[GNProp_Flags] & GNF_Charger ? " This model has a battery recharger." : "";
+		string PrfStr = WeaponStatus[GNProp_Flags] & GNF_Purifier ? "purifying " : "";
+		string ChrgStr = WeaponStatus[GNProp_Flags] & GNF_Charger ? " This model has a "..PrfStr.."battery recharger." : "";
 		return String.Format("You got the %s%s'Gungnir' frag beam rifle%s.%s", AccStr, CapStr, ProcStr, ChrgStr);
 	}
 
@@ -229,7 +236,7 @@ class HDGungnir : HDCellWeapon
 			{
 				if (invoker.WeaponStatus[GNProp_Flags] & GNF_Charger && PressingFireMode())
 				{
-					if (invoker.WeaponStatus[GNProp_ReserveBattery] < 20 && invoker.WeaponStatus[GNProp_Battery] == 20)
+					if (invoker.WeaponStatus[GNProp_ReserveBattery] >= 0 && invoker.WeaponStatus[GNProp_ReserveBattery] < 20 && invoker.WeaponStatus[GNProp_Battery] == 20)
 					{ 
 						invoker.WeaponStatus[GNProp_ChargeType] = 1;
 						return ResolveState("Charge");
@@ -283,8 +290,11 @@ class HDGungnir : HDCellWeapon
 					}
 					else
 					{
-						Console.Printf("kek");
 						invoker.WeaponStatus[GNProp_ReserveBattery]++;
+						if (!(invoker.WeaponStatus[GNProp_Flags] & GNF_Purifier) && invoker.WeaponStatus[GNProp_ReserveBattery] == 20)
+						{
+							invoker.WeaponStatus[GNProp_Flags] |= GNF_Demon;
+						}
 					}
 				}
 
@@ -356,8 +366,30 @@ class HDGungnir : HDCellWeapon
 						HDMagAmmo.SpawnMag(self, "HDBattery", invoker.WeaponStatus[Which]);
 						A_SetTics(4);
 					}
+					invoker.WeaponStatus[Which] = -1;
+					if (invoker.WeaponStatus[GNProp_Flags] & GNF_Demon)
+					{
+						invoker.WeaponStatus[GNProp_Flags] &= ~GNF_Demon;
+						if (!random(0, 2))
+						{
+							for (int i = 0; i < 5; ++i)
+							{
+								A_FireProjectile("BFGNecroShard", random(170, 190), spawnofs_xy: random(-20, 20));
+							}
+						}
+						else if (!random(0, 15))
+						{
+							A_FireProjectile("YokaiSpawner");
+						}
+						else
+						{
+							for (int i = 0; i < 5; ++i)
+							{
+								A_FireProjectile("BFGShard", random(170, 190), spawnofs_xy: random(-20, 20));
+							}
+						}
+					}
 				}
-				invoker.WeaponStatus[Which] = -1;
 			}
 			Goto BatteryOut;
 		BatteryOut:
@@ -459,6 +491,10 @@ class GungnirRandom : IdleDummy
 				if (!random(0, 5))
 				{
 					wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Charger;
+					if (!random(0, 2))
+					{
+						wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Purifier;
+					}
 				}
 			}
 			Stop;
