@@ -37,9 +37,6 @@ class HDGungnir : HDCellWeapon
 		GNF_Accelerator = 1,
 		GNF_Capacitor = 2,
 		GNF_Processor = 4,
-		GNF_Charger = 8,
-		GNF_Purifier = 16,
-		GNF_Demon = 1024,
 	}
 
 	enum GungnirProperties
@@ -47,46 +44,18 @@ class HDGungnir : HDCellWeapon
 		GNProp_Flags,
 		GNProp_Battery,
 		GNProp_Charge,
-		GNProp_ChargeType, // 0 = Charge Main, 1 = Charge Reserve
 		GNProp_Timer,
-		GNProp_LoadType,
-		GNProp_ReserveBattery,
-	}
-
-	enum GungnirLoadType
-	{
-		GNLoad_UnloadMain,
-		GNLoad_LoadMain,
-		GNLoad_LoadMainFromReserve,
-		GNLoad_UnloadReserve,
-		GNLoad_LoadReserve
+		GNProp_LoadType
 	}
 
 	override bool AddSpareWeapon(actor newowner) {return AddSpareWeaponRegular(newowner);}
 	override HDWeapon GetSpareWeapon(actor newowner, bool reverse, bool doselect) { return GetSpareWeaponRegular(newowner, reverse, doselect); }
-	override double GunMass()
-	{
-		int Extra = 0;
-		if (WeaponStatus[GNProp_Battery] >= 0)
-		{
-			Extra++;
-		}
-		if (WeaponStatus[GNProp_ReserveBattery] >= 0)
-		{
-			Extra++;
-		}
-		if (WeaponStatus[GNProp_Flags] & GNF_Charger)
-		{
-			Extra++;
-		}
-		return 11 + Extra;
-	}
-	override double WeaponBulk() { return 166 + (WeaponStatus[GNProp_Battery] >= 0 ? ENC_BATTERY_LOADED : 0) + (WeaponStatus[GNProp_ReserveBattery] >= 0 ? ENC_BATTERY_LOADED : 0) + (WeaponStatus[GNProp_Flags] & GNF_Charger ? 30 : 0); }
+	override double GunMass() { return WeaponStatus[GNProp_Battery] >= 0 ? 12 : 11; }
+	override double WeaponBulk() { return 166 + (WeaponStatus[GNProp_Battery] >= 0 ? ENC_BATTERY_LOADED : 0); }
 	override string, double GetPickupSprite() { return "GNGRZ0", 0.8; }
 	override void InitializeWepStats(bool idfa)
 	{
 		WeaponStatus[GNProp_Battery] = 20;
-		WeaponStatus[GNProp_ReserveBattery] = 20;
 		WeaponStatus[GNProp_Charge] = GetMaxCharge();
 		WeaponStatus[GNProp_Timer] = 0;
 	}
@@ -104,28 +73,16 @@ class HDGungnir : HDCellWeapon
 		{
 			WeaponStatus[GNProp_Flags] |= GNF_Processor;
 		}
-		if (GetLoadoutVar(input, "chrg", 1) > 0)
-		{
-			WeaponStatus[GNProp_Flags] |= GNF_Charger;
-		}
-		if (GetLoadoutVar(input, "pur", 1) > 0)
-		{
-			WeaponStatus[GNProp_Flags] |= GNF_Charger;
-		}
 
 		WeaponStatus[GNProp_Battery] = 20;
-		WeaponStatus[GNProp_ReserveBattery] = 20;
 	}
 
 	override string GetHelpText()
 	{
 		return WEPHELP_FIRE.."  Shoot\n"
-		..WEPHELP_ALTFIRE.."  Charge internal battery\n"
-		..(WeaponStatus[GNProp_Flags] & GNF_Charger ? WEPHELP_FIREMODE.."+"..WEPHELP_ALTFIRE.."  Charge reserve battery\n" : "")
+		..WEPHELP_ALTFIRE.."  Charge\n"
 		..WEPHELP_RELOAD.."  Abort charge/Reload battery\n"
-		..WEPHELP_FIREMODE.."+"..WEPHELP_RELOAD.."  Load reserve battery\n"
-		..WEPHELP_UNLOADUNLOAD
-		..WEPHELP_FIREMODE.."+"..WEPHELP_UNLOAD.."  Unload reserve battery";
+		..WEPHELP_UNLOADUNLOAD;
 	}
 
 	override string PickupMessage()
@@ -133,9 +90,7 @@ class HDGungnir : HDCellWeapon
 		string AccStr = WeaponStatus[GNProp_Flags] & GNF_Accelerator ? "accelerated " : "";
 		string CapStr = WeaponStatus[GNProp_Flags] & GNF_Capacitor ? "double-capacity " : "";
 		string ProcStr = WeaponStatus[GNProp_Flags] & GNF_Processor ? " with high efficiency processor" : "";
-		string PrfStr = WeaponStatus[GNProp_Flags] & GNF_Purifier ? "purifying " : "";
-		string ChrgStr = WeaponStatus[GNProp_Flags] & GNF_Charger ? " This model has a "..PrfStr.."battery recharger." : "";
-		return String.Format("You got the %s%s'Gungnir' frag beam rifle%s.%s", AccStr, CapStr, ProcStr, ChrgStr);
+		return String.Format("You got the %s%s'Gungnir' frag beam rifle%s.", AccStr, CapStr, ProcStr);
 	}
 
 	protected clearscope int GetMaxCharge()
@@ -145,7 +100,7 @@ class HDGungnir : HDCellWeapon
 
 	protected clearscope int GetBatteryCost()
 	{
-		return WeaponStatus[GNProp_Flags] & GNF_Processor ? 3 : 5;
+		return WeaponStatus[GNProp_Flags] & GNF_Processor ? 2 : 4;
 	}
 
 	override void DrawHUDStuff(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl)
@@ -156,24 +111,14 @@ class HDGungnir : HDCellWeapon
 			sb.DrawNum(hpl.CountInv("HDBattery"), -46, -8, sb.DI_SCREEN_CENTER_BOTTOM);
 		}
 
-		int ReserveCharge = hdw.WeaponStatus[GNProp_ReserveBattery];
-		if (ReserveCharge > 0)
-		{
-			sb.DrawWepNum(ReserveCharge, 20, posy: -12);
-		}
-		else if (ReserveCharge == 0)
-		{
-			sb.DrawString(sb.mAmountFont, "-----", (-16, -16), sb.DI_TEXT_ALIGN_RIGHT | sb.DI_TRANSLATABLE | sb.DI_SCREEN_CENTER_BOTTOM, Font.CR_DARKGRAY);
-		}
-
 		int BatteryCharge = hdw.WeaponStatus[GNProp_Battery];
 		if (BatteryCharge > 0)
 		{
-			sb.DrawWepNum(BatteryCharge, 20, posy: -9);
+			sb.DrawWepNum(BatteryCharge, 20, posy: -10);
 		}
 		else if (BatteryCharge == 0)
 		{
-			sb.DrawString(sb.mAmountFont, "-----", (-16, -13), sb.DI_TEXT_ALIGN_RIGHT | sb.DI_TRANSLATABLE | sb.DI_SCREEN_CENTER_BOTTOM, Font.CR_DARKGRAY);
+			sb.DrawString(sb.mAmountFont, "00000", (-16, -14), sb.DI_TEXT_ALIGN_RIGHT | sb.DI_TRANSLATABLE | sb.DI_SCREEN_CENTER_BOTTOM, Font.CR_DARKGRAY);
 		}
 		sb.DrawWepNum(hdw.WeaponStatus[GNProp_Charge], GetMaxCharge());
 	}
@@ -185,9 +130,9 @@ class HDGungnir : HDCellWeapon
 		sb.SetClipRect(-16 + bob.x, -4 + bob.y, 32, 16, sb.DI_SCREEN_CENTER);
 		vector2 bobb = bob * 2;
 		bobb.y = clamp(bobb.y, -8, 8);
-		sb.DrawImage("FRNTSITE", bobb, sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, alpha: 0.9, scale: (1.6, 2));
+		sb.drawimage("frntsite", bobb, sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, alpha: 0.9, scale: (1.6, 2));
 		sb.SetClipRect(cx, cy, cw, ch);
-		sb.DrawImage("BACKSITE", bob, sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, scale: (1.5, 1));
+		sb.drawimage("backsite", bob, sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, scale: (1.5, 1));
 	}
 
 	Default
@@ -208,13 +153,13 @@ class HDGungnir : HDCellWeapon
 			GNGR Z -1;
 			Stop;
 		Ready:
-			GNGR A 1 A_WeaponReady(WRF_ALLOWRELOAD | WRF_ALLOWUSER3 | WRF_ALLOWUSER4);
+			GNGR A 1 A_WeaponReady(WRF_ALL);
 			Goto ReadyEnd;
 		Select0:
 			GNGR A 0;
 			Goto Select0BFG;
 		Deselect0:
-			GNGR A 0;
+			GNGR A 0 { invoker.WeaponStatus[GNProp_Timer] = 0; }
 			Goto Deselect0Big;
 		User3:
 			#### A 0 A_MagManager("HDBattery");
@@ -234,21 +179,9 @@ class HDGungnir : HDCellWeapon
 		AltFire:
 			#### A 0
 			{
-				if (invoker.WeaponStatus[GNProp_Flags] & GNF_Charger && PressingFireMode())
-				{
-					if (invoker.WeaponStatus[GNProp_ReserveBattery] >= 0 && invoker.WeaponStatus[GNProp_ReserveBattery] < 20 && invoker.WeaponStatus[GNProp_Battery] == 20)
-					{ 
-						invoker.WeaponStatus[GNProp_ChargeType] = 1;
-						return ResolveState("Charge");
-					}
-				}
-				else
-				{
-					if (invoker.WeaponStatus[GNProp_Charge] < invoker.GetMaxCharge() && invoker.WeaponStatus[GNProp_Battery] >= invoker.GetBatteryCost())
-					{ 
-						invoker.WeaponStatus[GNProp_ChargeType] = 0;
-						return ResolveState("Charge");
-					}
+				if (invoker.WeaponStatus[GNProp_Charge] < invoker.GetMaxCharge() && invoker.WeaponStatus[GNProp_Battery] >= invoker.GetBatteryCost())
+				{ 
+					return ResolveState("Charge");
 				}
 
 				return ResolveState("Nope");
@@ -272,30 +205,18 @@ class HDGungnir : HDCellWeapon
 		ActualCharge:
 			#### C 6
 			{
-				int CType = invoker.WeaponStatus[GNProp_ChargeType];
-				if (PressingReload() || CType == 0 && (invoker.WeaponStatus[GNProp_Battery] < invoker.GetBatteryCost() || invoker.WeaponStatus[GNProp_Charge] == invoker.GetMaxCharge()) || CType == 1 && invoker.WeaponStatus[GNProp_ReserveBattery] == 20)
+				if (PressingReload() || invoker.WeaponStatus[GNProp_Battery] < invoker.GetBatteryCost() || invoker.WeaponStatus[GNProp_Charge] == invoker.GetMaxCharge())
 				{
 					invoker.WeaponStatus[GNProp_Timer] = 0;
 					SetWeaponState("Reload4");
 					return;
 				}
 
-				if (++invoker.WeaponStatus[GNProp_Timer] > (invoker.WeaponStatus[GNProp_Flags] & GNF_Accelerator ? 10 : 18) / (CType == 1 ? 5 : 1))
+				if (++invoker.WeaponStatus[GNProp_Timer] > (invoker.WeaponStatus[GNProp_Flags] & GNF_Accelerator ? 8 : 14))
 				{
 					invoker.WeaponStatus[GNProp_Timer] = 0;
-					if (CType == 0)
-					{
-						invoker.WeaponStatus[GNProp_Battery] -= invoker.GetBatteryCost();
-						invoker.WeaponStatus[GNProp_Charge]++;
-					}
-					else
-					{
-						invoker.WeaponStatus[GNProp_ReserveBattery]++;
-						if (!(invoker.WeaponStatus[GNProp_Flags] & GNF_Purifier) && invoker.WeaponStatus[GNProp_ReserveBattery] == 20)
-						{
-							invoker.WeaponStatus[GNProp_Flags] |= GNF_Demon;
-						}
-					}
+					invoker.WeaponStatus[GNProp_Battery] -= invoker.GetBatteryCost();
+					invoker.WeaponStatus[GNProp_Charge]++;
 				}
 
 				A_WeaponBusy(false);
@@ -307,37 +228,23 @@ class HDGungnir : HDCellWeapon
 		Reload:
 			#### A 0
 			{
-				int LType = PressingFireMode() ? GNLoad_LoadReserve : GNLoad_LoadMain;
-				if (LType == GNLoad_LoadReserve && !CheckInventory("HDBattery", 1))
+				if (invoker.weaponstatus[GNProp_Battery] >= 20 || !CheckInventory("HDBattery", 1))
 				{
 					SetWeaponState("Nope");
 					return;
 				}
-				if (LType == GNLoad_LoadMain)
-				{
-					if (invoker.WeaponStatus[GNProp_Battery] < invoker.GetBatteryCost() && invoker.WeaponStatus[GNProp_ReserveBattery] >= invoker.GetBatteryCost())
-					{
-						LType = GNLoad_LoadMainFromReserve;
-					}
-					else if (!CheckInventory("HDBattery", 1) || invoker.WeaponStatus[GNProp_Battery] == 20)
-					{
-						SetWeaponState("Nope");
-						return;
-					}
-				}
-				invoker.WeaponStatus[GNProp_LoadType] = LType;
+				invoker.WeaponStatus[GNProp_LoadType] = 1;
 			}
 			Goto Reload1;
 		Unload:
 			#### A 0
 			{
-				int LType = PressingFireMode() ? GNLoad_UnloadReserve : GNLoad_UnloadMain;
-				if (LType == GNLoad_UnloadMain && invoker.WeaponStatus[GNProp_Battery] == -1 || LType == GNLoad_UnloadReserve && invoker.WeaponStatus[GNProp_ReserveBattery] == -1)
+				if (invoker.WeaponStatus[GNProp_Battery] == -1)
 				{
 					SetWeaponState("Nope");
 					return;
 				}
-				invoker.WeaponStatus[GNProp_LoadType] = LType;
+				invoker.WeaponStatus[GNProp_LoadType] = 0;
 			}
 			Goto Reload1;
 		Reload1:
@@ -353,104 +260,57 @@ class HDGungnir : HDCellWeapon
 			{
 				A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
 				A_StartSound("weapons/bfgopen", 8);
-				int Which = invoker.WeaponStatus[GNProp_LoadType] < 3 ? GNProp_Battery : GNProp_ReserveBattery;
-				if (invoker.WeaponStatus[Which] >= 0)
+				if(invoker.WeaponStatus[GNProp_Battery] >= 0)
 				{
 					if (PressingReload() || PressingUnload())
 					{
-						HDMagAmmo.GiveMag(self, "HDBattery", invoker.WeaponStatus[Which]);
+						HDMagAmmo.GiveMag(self, "HDBattery", invoker.WeaponStatus[GNProp_Battery]);
 						A_SetTics(10);
 					}
 					else
 					{
-						HDMagAmmo.SpawnMag(self, "HDBattery", invoker.WeaponStatus[Which]);
+						HDMagAmmo.SpawnMag(self, "HDBattery", invoker.WeaponStatus[GNProp_Battery]);
 						A_SetTics(4);
 					}
-					invoker.WeaponStatus[Which] = -1;
-					if (invoker.WeaponStatus[GNProp_Flags] & GNF_Demon)
-					{
-						invoker.WeaponStatus[GNProp_Flags] &= ~GNF_Demon;
-						if (!random(0, 2))
-						{
-							for (int i = 0; i < 5; ++i)
-							{
-								A_FireProjectile("BFGNecroShard", random(170, 190), spawnofs_xy: random(-20, 20));
-							}
-						}
-						else if (!random(0, 15))
-						{
-							A_FireProjectile("YokaiSpawner");
-						}
-						else
-						{
-							for (int i = 0; i < 5; ++i)
-							{
-								A_FireProjectile("BFGShard", random(170, 190), spawnofs_xy: random(-20, 20));
-							}
-						}
-					}
 				}
+				invoker.WeaponStatus[GNProp_Battery] = -1;
 			}
 			Goto BatteryOut;
 		BatteryOut:
 			#### C 4 Offset(0, 42)
 			{
-				if (invoker.WeaponStatus[GNProp_LoadType] == GNLoad_UnloadMain || invoker.WeaponStatus[GNProp_LoadType] == GNLoad_UnloadReserve)
+				if (invoker.WeaponStatus[GNProp_LoadType] == 0)
 				{
 					SetWeaponState("Reload3");
 				}
 				else
 				{
-					A_SetTics(invoker.WeaponStatus[GNProp_LoadType] == GNLoad_LoadMainFromReserve ? 1 : 4);
 					A_StartSound("weapons/pocket", 9);
 				}
 			}
-			#### C 12 A_SetTics(invoker.WeaponStatus[GNProp_LoadType] == GNLoad_LoadMainFromReserve ? 4 : 12);
-			#### C 12 Offset(0, 42)
-			{
-				A_SetTics(invoker.WeaponStatus[GNProp_LoadType] == GNLoad_LoadMainFromReserve ? 4 : 12);
-				A_StartSound("weapons/bfgbattout", 8);
-			}
-			#### C 10 Offset(0, 36)
-			{
-				A_SetTics(invoker.WeaponStatus[GNProp_LoadType] == GNLoad_LoadMainFromReserve ? 3 : 12);
-				A_StartSound("weapons/bfgbattpop", 8);
-			}
+			#### C 12;
+			#### C 12 Offset(0, 42) A_StartSound("weapons/bfgbattout", 8);
+			#### C 10 Offset(0, 36) A_StartSound("weapons/bfgbattpop", 8);
 			#### C 0
 			{
-				if (invoker.WeaponStatus[GNProp_LoadType] == GNLoad_LoadMainFromReserve)
+				let Battery = HDMagAmmo(FindInventory("HDBattery"));
+				if (Battery && Battery.Amount > 0)
 				{
-					invoker.WeaponStatus[GNProp_Battery] = invoker.WeaponStatus[GNProp_ReserveBattery];
-					invoker.WeaponStatus[GNProp_ReserveBattery] = -1;
+					invoker.WeaponStatus[GNProp_Battery] = Battery.TakeMag(true);
 				}
 				else
 				{
-					let Battery = HDMagAmmo(FindInventory("HDBattery"));
-					if (Battery && Battery.Amount > 0)
-					{
-						if (invoker.WeaponStatus[GNProp_LoadType] == GNLoad_LoadMain)
-						{
-							invoker.WeaponStatus[GNProp_Battery] = Battery.TakeMag(true);
-						}
-						else if (invoker.WeaponStatus[GNProp_LoadType] == GNLoad_LoadReserve)
-						{
-							invoker.WeaponStatus[GNProp_ReserveBattery] = Battery.TakeMag(false);
-						}
-					}
-					else
-					{
-						SetWeaponState("Reload3");
-						return;
-					}
+					SetWeaponState("Reload3");
+					return;
 				}
 			}
 		Reload3:
-			#### C 5 Offset(0, 38) A_StartSound("weapons/bfgopen", 8);
-			#### C 6 Offset(0, 37) A_StartSound("weapons/bfgclick2", 8);
+			#### C 6 Offset(0, 38) A_StartSound("weapons/bfgopen", 8);
+			#### C 8 Offset(0, 37) A_StartSound("weapons/bfgclick2", 8);
 			#### C 2 Offset(0, 38);
 			#### B 2 Offset(0, 36);
 			#### A 2 Offset(0, 34);
-			#### A 8;
+			#### A 12;
 			Goto Ready;
 		Reload4:
 			#### CBA 2;
@@ -480,21 +340,13 @@ class GungnirRandom : IdleDummy
 				{
 					wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Accelerator;
 				}
-				if (!random(0, 4))
+				if (!random(0, 3))
 				{
 					wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Capacitor;
 				}
 				if (!random(0, 3))
 				{
 					wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Processor;
-				}
-				if (!random(0, 5))
-				{
-					wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Charger;
-					if (!random(0, 2))
-					{
-						wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Purifier;
-					}
 				}
 			}
 			Stop;
