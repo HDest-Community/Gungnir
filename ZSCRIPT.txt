@@ -431,7 +431,7 @@ class GungnirRaySmoke : Actor
 	States
 	{
 		Spawn:
-			SMOK Z 1 Bright
+			GNSM K 1 Bright
 			{
 				A_FadeOut(0.035);
 				A_SetScale(Scale.X + 0.0001);
@@ -536,7 +536,7 @@ class GungnirRaySpearSmoke : Actor
 	States
 	{
 		Spawn:
-			SMOK Z 1
+			GNSM K 1
 			{
 				A_FadeOut(0.03);
 				A_SetScale(Scale.X + 0.003);
