@@ -293,7 +293,7 @@ class HDGungnir : HDCellWeapon
 			#### C 10 Offset(0, 36) A_StartSound("weapons/bfgbattpop", 8);
 			#### C 0
 			{
-				let Battery = HDMagAmmo(findinventory("HDBattery"));
+				let Battery = HDMagAmmo(FindInventory("HDBattery"));
 				if (Battery && Battery.Amount > 0)
 				{
 					invoker.WeaponStatus[GNProp_Battery] = Battery.TakeMag(true);
