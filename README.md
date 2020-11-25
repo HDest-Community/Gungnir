@@ -7,4 +7,4 @@
 	- `cap`: Capacitor - gives an extra shot.
 	- `proc`: Processor - makes battery consumption more efficient.
 	- `chrg`: Charger - allows charging of reserve batteries.
-	- `pur`: Purifier - removes frag shards from charging batteries. Useless without the charger.
+	- `pur`: Purifier - removes spawning of frag shards after charging batteries. Useless without the charger.
