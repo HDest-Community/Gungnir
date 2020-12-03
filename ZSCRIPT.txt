@@ -348,6 +348,7 @@ class GungnirRandom : IdleDummy
 				{
 					wpn.WeaponStatus[wpn.GNProp_Flags] |= wpn.GNF_Processor;
 				}
+				wpn.InitializeWepStats(false);
 			}
 			Stop;
 	}
