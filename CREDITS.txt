@@ -3,7 +3,7 @@ Code:
 
 Sprites:
 - Tim Kaminsky (https://www.artstation.com/artwork/l5BXo)
- + Pickup sprite by Mor'ladim.
+ + Pickup sprite and reshade by Mor'ladim.
 
 Sounds:
 - Ribbon (https://gamebanana.com/sounds/31093)
