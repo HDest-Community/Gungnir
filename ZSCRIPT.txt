@@ -74,7 +74,7 @@ class HDGungnir : HDCellWeapon
 			WeaponStatus[GNProp_Flags] |= GNF_Processor;
 		}
 
-		WeaponStatus[GNProp_Battery] = 20;
+		InitializeWepStats(false);
 	}
 
 	override string GetHelpText()
