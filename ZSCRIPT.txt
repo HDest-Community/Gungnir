@@ -1,6 +1,6 @@
 version "4.0"
 
-class GungnirHandler : StaticEventHandler
+class GungnirHandler : EventHandler
 {
 	override void CheckReplacement(ReplaceEvent e)
 	{
