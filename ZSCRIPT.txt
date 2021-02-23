@@ -386,11 +386,11 @@ class GungnirRayImpact : Actor
 				}
 				
 				// Ball.
-				for (int i = -180; i < 180; i += 6)
+				for (int i = -180; i < 180; i += 10)
 				{
-					for (int j = -90 + 6; j < 90; j += 6)
+					for (int j = -90 + 9; j < 90 - 9; j += 10)
 					{
-						A_SpawnParticle(Color(0xDFFF66), SPF_FULLBRIGHT | SPF_RELATIVE, 15, 16, i, 0, 0, 0, 4 * cos(j) * 1.2, 0, 4 * sin(j));
+						A_SpawnParticle(Color(0xDFFF66), SPF_FULLBRIGHT | SPF_RELATIVE, 15, 24, i, 0, 0, 0, 4 * cos(j) * 1.2, 0, 4 * sin(j));
 					}
 				}
 
