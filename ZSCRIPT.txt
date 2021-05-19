@@ -216,7 +216,7 @@ class HDGungnir : HDCellWeapon
 				{
 					invoker.WeaponStatus[GNProp_Timer] = 0;
 					invoker.WeaponStatus[GNProp_Battery] -= invoker.GetBatteryCost();
-					invoker.WeaponStatus[GNProp_Charge] == invoker.GetMaxCharge();
+					invoker.WeaponStatus[GNProp_Charge] = invoker.GetMaxCharge();
 				}
 
 				A_WeaponBusy(false);
