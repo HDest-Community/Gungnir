@@ -133,6 +133,22 @@ class HDGungnir : HDCellWeapon
 		sb.DrawImage("GNGRFRNT", bobb, sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, alpha: 0.9);
 		sb.SetClipRect(cx, cy, cw, ch);
 		sb.DrawImage("GNGRBACK", (0, 3) + bob, sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER);
+
+		if (scopeview)
+		{
+			int ScaledYOffset = 60;
+			int ScaledWidth = 89;
+			vector2 ScaleHalf = (0.5, 0.5);
+			int cx, cy, cw, ch;
+			[cx, cy, cw, ch] = Screen.GetClipRect();
+			sb.SetClipRect(-99 + bob.x, 16 + bob.y, ScaledWidth, ScaledWidth, sb.DI_SCREEN_CENTER);
+
+			TexMan.SetCameraToTexture(hpc, "HDXHCAM3", 5);
+			sb.DrawImage("HDXHCAM3", (-55, ScaledYOffset) + bob, sb.DI_SCREEN_CENTER |  sb.DI_ITEM_CENTER, scale: ScaleHalf);
+			sb.DrawImage("SCOPHOLE", (-55, ScaledYOffset) + bob * 5, sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER, scale: (1.5, 1.5));
+			Screen.SetClipRect(cx, cy, cw, ch);
+			sb.DrawImage("GNRSCOPE", (-55, ScaledYOffset) + bob, sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER, scale: (1.24, 1.24));
+		}
 	}
 
 	Default
