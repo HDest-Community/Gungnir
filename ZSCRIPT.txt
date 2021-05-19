@@ -95,7 +95,7 @@ class HDGungnir : HDCellWeapon
 
 	protected clearscope int GetMaxCharge()
 	{
-		return WeaponStatus[GNProp_Flags] & GNF_Capacitor ? 2 : 1;
+		return WeaponStatus[GNProp_Flags] & GNF_Capacitor ? 3 : 2;
 	}
 
 	protected clearscope int GetBatteryCost()
@@ -216,7 +216,7 @@ class HDGungnir : HDCellWeapon
 				{
 					invoker.WeaponStatus[GNProp_Timer] = 0;
 					invoker.WeaponStatus[GNProp_Battery] -= invoker.GetBatteryCost();
-					invoker.WeaponStatus[GNProp_Charge]++;
+					invoker.WeaponStatus[GNProp_Charge] == invoker.GetMaxCharge();
 				}
 
 				A_WeaponBusy(false);
