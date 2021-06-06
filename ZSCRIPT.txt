@@ -88,7 +88,7 @@ class HDGungnir : HDCellWeapon
 	override string PickupMessage()
 	{
 		string AccStr = WeaponStatus[GNProp_Flags] & GNF_Accelerator ? "accelerated " : "";
-		string CapStr = WeaponStatus[GNProp_Flags] & GNF_Capacitor ? "double-capacity " : "";
+		string CapStr = WeaponStatus[GNProp_Flags] & GNF_Capacitor ? "high-capacity " : "";
 		string ProcStr = WeaponStatus[GNProp_Flags] & GNF_Processor ? " with high efficiency processor" : "";
 		return String.Format("You got the %s%s'Gungnir' frag beam rifle%s.", AccStr, CapStr, ProcStr);
 	}
