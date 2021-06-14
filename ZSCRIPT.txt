@@ -391,6 +391,7 @@ class GungnirRayImpact : Actor
 		Spawn:
 			TNT1 A 16 NoDelay
 			{
+				DoorDestroyer.DestroyDoor(self, 128, 24); 
 				A_Explode(random(100, 200), 210, XF_HURTSOURCE, false, damageType: 'Electrical');
 				A_StartSound("Gungnir/RayHit", attenuation: 0.5);
 				DistantQuaker.Quake(self, 2, 50, 16384, 10, 256, 512, 128);
