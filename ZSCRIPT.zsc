@@ -208,7 +208,7 @@ class HDGungnir : HDCellWeapon
 			{
 				A_Light0();
 				A_StartSound("Gungnir/DeathRayFire", CHAN_WEAPON);
-				A_RailAttack(random(600, 900), 0, false, "", "", RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 12600, 0, 2.0, 0, "GungnirRaySmoke", limit: 3);
+				A_RailAttack(random(600, 900), 0, false, "", "", RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 12600, 0, 10.0, 0, "GungnirRaySegment", limit: 3);
 				A_AlertMonsters();
 				A_MuzzleClimb(0, 0, -0.2, -0.8, -frandom(0.5, 0.9), -frandom(3.2, 4.0), -frandom(0.5, 0.9), -frandom(3.2, 4.0));
 				invoker.WeaponStatus[GNProp_Charge] -= 1;
@@ -418,71 +418,33 @@ class GungnirRayImpact : Actor
 	}
 }
 
-class GungnirRaySmoke : Actor
+class GungnirRaySegment : Actor
 {
 	override void PostBeginPlay()
 	{
-		if (!random(0, 2))
+		for (int i = 0; i < 2; ++i)
 		{
-			A_SpawnItemEx("GungnirRaySmokeParticle");
+			A_SpawnParticle(0x88FF44, SPF_RELATIVE | SPF_FULLBRIGHT, random(50, 80), frandom(1.5, 3.0), 0,random(-10, 10), 0, 0,
+				frandom(-0.10, 0.10), frandom(-0.10, 0.10), frandom(-0.10, 0.10),
+				frandom(-0.005, 0.005), frandom(-0.005, 0.005), frandom(-0.005, 0.005));
 		}
 
-		A_SetRoll(random(0, 360));
-
 		Super.PostBeginPlay();
 	}
 
 	Default
 	{
-		StencilColor "88FF44";
-		RenderStyle "Stencil";
+		RenderStyle "Add";
 		+NOINTERACTION
-		+ROLLSPRITE
+		+NOBLOCKMAP
+		+BRIGHT
 		Alpha 2.0;
-		Scale 0.005;
 	}
 
 	States
 	{
 		Spawn:
-			GNSM K 1 Bright
-			{
-				A_FadeOut(0.035);
-				A_SetScale(Scale.X + 0.0001);
-				A_ChangeVelocity(frandom(-0.005, 0.005), frandom(-0.005, 0.005), frandom(-0.005, 0.005), CVF_RELATIVE);
-			}
-			Loop;
-	}
-}
-
-class GungnirRaySmokeParticle : Actor
-{
-	override void PostBeginPlay()
-	{
-		Lifetime = DefaultLifeTime = random(50, 80);
-		ParticleSize = frandom(2.0, 4.0);
-
-		Super.PostBeginPlay();
-	}
-
-	Default
-	{
-		+NOINTERACTION
-	}
-
-	double Lifetime;
-	double DefaultLifeTime;
-	double ParticleSize;
-
-	States
-	{
-		Spawn:
-			TNT1 A 1
-			{
-				A_SpawnParticle("88FF44", SPF_RELATIVE | SPF_FULLBRIGHT, 1, ParticleSize, startalphaf: Lifetime / DefaultLifeTime);
-				A_ChangeVelocity(frandom(-0.15, 0.15), frandom(-0.15, 0.15), frandom(-0.15, 0.15), CVF_RELATIVE);
-				if (Lifetime-- < 0) Destroy();
-			}
+			GNGY A 1 Bright A_FadeOut(0.05);
 			Loop;
 	}
 }
