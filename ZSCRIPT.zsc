@@ -208,7 +208,7 @@ class HDGungnir : HDCellWeapon
 			{
 				A_Light0();
 				A_StartSound("Gungnir/DeathRayFire", CHAN_WEAPON);
-				A_RailAttack(random(1000, 1200), 0, false, "", "", RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, 12600, 0, 10.0, 0, "GungnirRaySegment", player.crouchfactor < 1.0 ? 0.9 : 1.8, limit: 3);
+				A_RailAttack(random(1000, 1200), 0, false, "", "", RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpact", 0, 0, HDCONST_ONEMETRE * 300, 0, 10.0, 0, "GungnirRaySegment", player.crouchfactor < 1.0 ? 0.9 : 1.8, limit: 3);
 				A_AlertMonsters();
 				A_MuzzleClimb(0, 0, -0.2, -0.8, -frandom(0.5, 0.9), -frandom(3.2, 4.0), -frandom(0.5, 0.9), -frandom(3.2, 4.0));
 				invoker.WeaponStatus[GNProp_Charge] -= 1;
