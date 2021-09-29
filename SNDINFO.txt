@@ -1,2 +1,3 @@
 Gungnir/DeathRayFire GUNGRAY
 Gungnir/RayHit GNRAYHIT
+Gungnir/Charge GUNGCHRG
