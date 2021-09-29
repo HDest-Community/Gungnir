@@ -215,8 +215,8 @@ class HDGungnir : HDCellWeapon
 		switch (tier)
 		{
 			case 1: minDamage = 600; maxDamage = 900; break;
-			case 2: minDamage = 1500; maxDamage = 2000; break;
-			case 3: minDamage = 3500; maxDamage = 4500; break;
+			case 2: minDamage = 2000; maxDamage = 2500; break;
+			case 3: minDamage = 4000; maxDamage = 5000; break;
 		}
 
 		A_RailAttack(random(minDamage, maxDamage), 0, false, "", "", RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpactT"..(tier - 1), 0, 0, HDCONST_ONEMETRE * 300, 0, 10.0, 0, "GungnirRaySegment", player.crouchfactor < 1.0 ? 0.9 : 1.8, limit: tier);
