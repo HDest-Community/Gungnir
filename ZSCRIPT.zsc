@@ -214,9 +214,9 @@ class HDGungnir : HDCellWeapon
 		int minDamage, maxDamage;
 		switch (tier)
 		{
-			case 1: minDamage = 900; maxDamage = 1100; break;
-			case 2: minDamage = 1800; maxDamage = 2200; break;
-			case 3: minDamage = 4000; maxDamage = 5000; break;
+			case 1: minDamage = 600; maxDamage = 900; break;
+			case 2: minDamage = 1500; maxDamage = 2000; break;
+			case 3: minDamage = 3500; maxDamage = 4500; break;
 		}
 
 		A_RailAttack(random(minDamage, maxDamage), 0, false, "", "", RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpactT"..(tier - 1), 0, 0, HDCONST_ONEMETRE * 300, 0, 10.0, 0, "GungnirRaySegment", player.crouchfactor < 1.0 ? 0.9 : 1.8, limit: tier);
@@ -534,7 +534,7 @@ class GungnirRayImpactT0 : GungnirRayImpact
 	override void OnBlast()
 	{
 		DoorDestroyer.DestroyDoor(self, random(32, 140), random(8, 32)); 
-		A_Explode(random(150, 200), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
+		A_Explode(random(100, 150), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
 		A_StartSound("Gungnir/RayHit", attenuation: 0.5);
 		DistantQuaker.Quake(self, 2, 50, HDCONST_ONEMETRE * 30, 10, 256, 512, 128);
 	}
@@ -545,7 +545,7 @@ class GungnirRayImpactT1 : GungnirRayImpact
 	override void OnBlast()
 	{
 		DoorDestroyer.DestroyDoor(self, random(64, 256), random(16, 64)); 
-		A_Explode(random(300, 400), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
+		A_Explode(random(200, 300), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
 		A_StartSound("Gungnir/RayHit", attenuation: 0.2, pitch: 0.8);
 		DistantQuaker.Quake(self, 4, 50, HDCONST_ONEMETRE * 70, 10, 256, 512, 128);
 	}
@@ -556,7 +556,7 @@ class GungnirRayImpactT2 : GungnirRayImpact
 	override void OnBlast()
 	{
 		DoorDestroyer.DestroyDoor(self, random(256, 512), random(32, 128)); 
-		A_Explode(random(600, 800), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
+		A_Explode(random(400, 600), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
 		A_StartSound("Gungnir/RayHit", attenuation: ATTN_NONE, pitch: 0.6);
 		DistantQuaker.Quake(self, 6, 50, HDCONST_ONEMETRE * 200, 10, 256, 512, 128);
 	}
