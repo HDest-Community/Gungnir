@@ -257,7 +257,7 @@ class HDGungnir : HDCellWeapon
 		Ready:
 			GNGR A 1
 			{
-				A_WeaponReady((invoker.Charge > 0 ? WRF_NOFIRE : WRF_NOPRIMARY) | WRF_ALL);
+				A_WeaponReady(invoker.Charge > 0 ? WRF_NOFIRE : WRF_NOPRIMARY | WRF_ALL);
 				int tier = invoker.Charge / A_GetChargePerTier();
 				if (PressingFire() && invoker.WeaponStatus[GNProp_Charge] > 0)
 				{
