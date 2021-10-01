@@ -176,7 +176,7 @@ class HDGungnir : HDCellWeapon
 
 	private clearscope action int A_GetChargePerTier()
 	{
-		return invoker.WeaponStatus[GNProp_Flags] & GNF_Accelerator ? 8 : 12;
+		return invoker.WeaponStatus[GNProp_Flags] & GNF_Accelerator ? 6 : 10;
 	}
 
 	private action void A_ResetCharges()
