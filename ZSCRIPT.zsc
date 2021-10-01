@@ -281,7 +281,7 @@ class HDGungnir : HDCellWeapon
 					{
 						invoker.HasReachedTier[tier - 1] = true;
 						A_StartSound("Gungnir/Charge", 10, pitch: 1.0 + 0.15 * (tier - 1));
-						A_WeaponOffset(0, 35, WOF_INTERPOLATE);
+						A_WeaponOffset(0, 35);
 						invoker.ChargeDelayTicker = 0;
 					}
 				}
