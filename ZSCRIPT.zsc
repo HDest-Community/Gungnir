@@ -304,7 +304,6 @@ class HDGungnir : HDCellWeapon
 				invoker.WeaponStatus[GNProp_Timer] = 0;
 				if (invoker.Charge > 0)
 				{
-					A_DestroyBattery();
 					A_ResetCharges();
 				}
 			}
