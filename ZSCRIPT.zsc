@@ -121,7 +121,7 @@ class HDGungnir : HDCellWeapon
 		if (sb.HudLevel == 1)
 		{
 			sb.DrawBattery(-54, -4, sb.DI_SCREEN_CENTER_BOTTOM, reloadorder: true);
-			sb.DrawNum(hpl.CountInv("HDBattery"), -56, -8, sb.DI_SCREEN_CENTER_BOTTOM);
+			sb.DrawNum(hpl.CountInv("HDBattery"), -46, -8, sb.DI_SCREEN_CENTER_BOTTOM);
 		}
 
 		for (int i = 0; i < hdw.WeaponStatus[GNProp_Charge]; ++i)
