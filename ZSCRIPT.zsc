@@ -37,6 +37,7 @@ class HDGungnir : HDCellWeapon
 		GNF_Accelerator = 1,
 		GNF_Capacitor = 2,
 		GNF_Processor = 4,
+		GNF_AntiFrag = 8
 	}
 
 	enum GungnirProperties
@@ -219,7 +220,12 @@ class HDGungnir : HDCellWeapon
 			case 3: minDamage = 6000; maxDamage = 7000; break;
 		}
 
-		A_RailAttack(random(minDamage, maxDamage), 0, false, "", "", RGF_NORANDOMPUFFZ | RGF_SILENT, 0, "GungnirRayImpactT"..(tier - 1), 0, 0, HDCONST_ONEMETRE * 300, 0, 10.0, 0, "GungnirRaySegment", player.crouchfactor < 1.0 ? 0.9 : 1.8, limit: tier);
+		string puff = "GungnirRayImpactT"..tier;
+		if (invoker.WeaponStatus[GNProp_Flags] & GNF_AntiFrag && tier == 3)
+		{
+			puff = puff.."OP";
+		}
+		A_RailAttack(random(minDamage, maxDamage), 0, false, "", "", RGF_NORANDOMPUFFZ | RGF_SILENT, 0, puff, 0, 0, HDCONST_ONEMETRE * 300, 0, 10.0, 0, "GungnirRaySegment", player.crouchfactor < 1.0 ? 0.9 : 1.8, limit: tier);
 
 		A_Recoil((2 ** tier) * (HDPlayerPawn(self).gunbraced ? 0.2 : 1.0));
 		A_AlertMonsters();
@@ -491,6 +497,7 @@ class GungnirRayImpact : Actor abstract
 		+BLOODLESSIMPACT
 		+FORCERADIUSDMG
 		+NOBLOOD
+		+HITTRACER
 		Decal "GungnirScorch";
 		DamageType "Electrical";
 	}
@@ -528,7 +535,7 @@ class GungnirRayImpact : Actor abstract
 	}
 }
 
-class GungnirRayImpactT0 : GungnirRayImpact
+class GungnirRayImpactT1 : GungnirRayImpact
 {
 	override void OnBlast()
 	{
@@ -539,7 +546,7 @@ class GungnirRayImpactT0 : GungnirRayImpact
 	}
 }
 
-class GungnirRayImpactT1 : GungnirRayImpact
+class GungnirRayImpactT2 : GungnirRayImpact
 {
 	override void OnBlast()
 	{
@@ -550,7 +557,7 @@ class GungnirRayImpactT1 : GungnirRayImpact
 	}
 }
 
-class GungnirRayImpactT2 : GungnirRayImpact
+class GungnirRayImpactT3 : GungnirRayImpact
 {
 	override void OnBlast()
 	{
@@ -558,6 +565,21 @@ class GungnirRayImpactT2 : GungnirRayImpact
 		A_Explode(random(400, 600), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
 		A_StartSound("Gungnir/RayHit", attenuation: ATTN_NONE, pitch: 0.6);
 		DistantQuaker.Quake(self, 6, 50, HDCONST_ONEMETRE * 200, 10, 256, 512, 128);
+	}
+}
+
+class GungnirRayImpactT3OP : GungnirRayImpactT3
+{
+	override void OnBlast()
+	{
+		let necro = Necromancer(tracer);
+		if (necro && !necro.bFRIENDLY)
+		{
+			necro.HitsLeft = 0;
+			necro.A_ChangeNecroFlags(true);
+			necro.DamageMobj(self, target, 2000, 'Holy', DMG_FORCED);
+		}
+		Super.OnBlast();
 	}
 }
 
