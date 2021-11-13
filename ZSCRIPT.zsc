@@ -216,8 +216,8 @@ class HDGungnir : HDCellWeapon
 		switch (tier)
 		{
 			case 1: minDamage = 600; maxDamage = 900; break;
-			case 2: minDamage = 2000; maxDamage = 2500; break;
-			case 3: minDamage = 6000; maxDamage = 7000; break;
+			case 2: minDamage = 2500; maxDamage = 3000; break;
+			case 3: minDamage = 10000; maxDamage = 12000; break;
 		}
 
 		string puff = "GungnirRayImpactT"..tier;
