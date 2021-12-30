@@ -546,7 +546,7 @@ class GungnirRayImpactT1 : GungnirRayImpact
 {
 	override void OnBlast()
 	{
-		DoorDestroyer.DestroyDoor(self, random(32, 140), random(8, 32)); 
+		DoorDestroyer.DestroyDoor(self, random(32, 140), random(8, 48)); 
 		A_Explode(random(100, 150), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
 		A_StartSound("Gungnir/RayHit", attenuation: 0.5);
 		DistantQuaker.Quake(self, 2, 50, HDCONST_ONEMETRE * 30, 10, 256, 512, 128);
@@ -557,8 +557,8 @@ class GungnirRayImpactT2 : GungnirRayImpact
 {
 	override void OnBlast()
 	{
-		DoorDestroyer.DestroyDoor(self, random(64, 256), random(16, 64)); 
-		A_Explode(random(200, 300), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
+		DoorDestroyer.DestroyDoor(self, random(96, 280), random(32, 96)); 
+		A_Explode(random(250, 400), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
 		A_StartSound("Gungnir/RayHit", attenuation: 0.2, pitch: 0.8);
 		DistantQuaker.Quake(self, 4, 50, HDCONST_ONEMETRE * 70, 10, 256, 512, 128);
 	}
@@ -568,8 +568,8 @@ class GungnirRayImpactT3 : GungnirRayImpact
 {
 	override void OnBlast()
 	{
-		DoorDestroyer.DestroyDoor(self, random(256, 512), random(32, 128)); 
-		A_Explode(random(400, 600), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
+		DoorDestroyer.DestroyDoor(self, random(384, 560), random(64, 192)); 
+		A_Explode(random(600, 800), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
 		A_StartSound("Gungnir/RayHit", attenuation: ATTN_NONE, pitch: 0.6);
 		DistantQuaker.Quake(self, 6, 50, HDCONST_ONEMETRE * 200, 10, 256, 512, 128);
 	}
