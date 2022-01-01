@@ -279,13 +279,27 @@ class HDGungnir : HDCellWeapon
 			GNGR A 1
 			{
 				A_WeaponReady(invoker.Charge > 0 ? WRF_NOFIRE : WRF_NOPRIMARY | WRF_ALL);
-				int tier = invoker.Charge / A_GetChargePerTier();
+				int reqCharge = A_GetChargePerTier();
+				int tier = invoker.Charge / reqCharge;
 				if (PressingFire() && invoker.WeaponStatus[GNProp_Charge] > 0)
 				{
 					A_MuzzleClimb(frandom(-0.10, 0.10) * (1.7 ** tier), frandom(-0.10, 0.10) * (1.7 ** tier));
 
+					A_Overlay(-4, 'BlastCharge0', true);
+					A_OverlayFlags(-4, PSPF_RENDERSTYLE, true);
+					A_OverlayPivot(-4);
+					A_OverlayRenderStyle(-4, STYLE_Add);
+					if (tier == 0)
+					{
+						A_OverlayScale(-4, invoker.Charge / double(reqCharge));
+					}
+					else
+					{
+						A_OverlayScale(-4, 1.0 + (((invoker.Charge % reqCharge) / double(reqCharge))) * 0.60);
+					}
+
 					let plr = HDPlayerPawn(self);
-					if (invoker.Charge < Tiers * A_GetChargePerTier() && tier < invoker.WeaponStatus[GNProp_Charge])
+					if (invoker.Charge < Tiers * reqCharge && tier < invoker.WeaponStatus[GNProp_Charge])
 					{
 						if (level.time % 4 == 0)
 						{
@@ -305,10 +319,6 @@ class HDGungnir : HDCellWeapon
 						A_WeaponOffset(0, 35);
 						invoker.ChargeDelayTicker = 0;
 					}
-
-					A_Overlay(-4, 'BlastCharge0', true);
-					A_OverlayFlags(-4, PSPF_RENDERSTYLE, true);
-					A_OverlayRenderStyle(-4, STYLE_Add);
 				}
 				else if (tier > 0)
 				{
@@ -321,7 +331,7 @@ class HDGungnir : HDCellWeapon
 			}
 			Goto ReadyEnd;
 		BlastCharge0:
-			TNT1 A 1 A_JumpIf(invoker.Charge / A_GetChargePerTier() == 1, 'BlastCharge1');
+			GNC1 ABCDEFGHIJKLMNO 1 A_JumpIf(invoker.Charge / A_GetChargePerTier() == 1, 'BlastCharge1');
 			Loop;
 		BlastCharge1:
 			GNC1 ABCDEFGHIJKLMNO 1 A_JumpIf(invoker.Charge / A_GetChargePerTier() == 2, 'BlastCharge2');
