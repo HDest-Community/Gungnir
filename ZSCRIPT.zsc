@@ -730,6 +730,7 @@ class GungnirRaySpearSmoke : Actor
 		StencilColor "B0FF55";
 		+BRIGHT
 		+NOINTERACTION
+		+NOBLOCKMAP
 		+ROLLSPRITE
 		+FORCEXYBILLBOARD
 	}
@@ -748,11 +749,12 @@ class GungnirRaySpearSmoke : Actor
 
 class GungnirMuzzleSmoke : GungnirRaySpearSmoke
 {
-	override void BeginPlay()
+	override void PostBeginPlay()
 	{
-		Super.BeginPlay();
-		Scale = default.Scale * frandom(0.8, 1.25);
-		Alpha *= frandom(0.5, 1.0);
+		Super.PostBeginPlay();
+		scale = default.Scale * frandom(0.8, 1.25);
+		alpha *= frandom(0.5, 1.0);
+		angle = random(0, 359);
 	}
 
 	override void Tick()
@@ -762,13 +764,24 @@ class GungnirMuzzleSmoke : GungnirRaySpearSmoke
 			return;
 		}
 
-		vel *= 0.95;
-		vel.z -= 0.02;
+		if (pos.z > floorz)
+		{
+			vel *= 0.95;
+			vel.z -= 0.022;
+		}
+		else
+		{
+			A_ChangeVelocity(0.1, 0, 0, CVF_RELATIVE | CVF_REPLACE);
+		}
 		Super.Tick();
 	}
 
 	Default
 	{
+		-NOINTERACTION
+		+NOGRAVITY
+		+THRUACTORS
+		MaxStepHeight 8;
 		Scale 0.05;
 		Alpha 0.5;
 	}
