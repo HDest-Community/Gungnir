@@ -196,6 +196,10 @@ class HDGungnir : HDCellWeapon
 		invoker.Charge = 0;
 		invoker.ChargeDelayTicker = 0;
 		A_ClearOverlays(-4, -4);
+		if (invoker.DynLight)
+		{
+			invoker.DynLight.Destroy();
+		}
 	}
 
 	private action void A_DestroyBattery()
@@ -258,6 +262,7 @@ class HDGungnir : HDCellWeapon
 	private int Charge; // [Ace] GNProp_Charge is for the "loaded" shots. This here is for charging up a more powerful beam.
 	private bool HasReachedTier[Tiers];
 	private int ChargeDelayTicker;
+	private PointLight DynLight;
 
 	Default
 	{
@@ -284,6 +289,19 @@ class HDGungnir : HDCellWeapon
 				int tier = invoker.Charge / reqCharge;
 				if (PressingFire() && invoker.WeaponStatus[GNProp_Charge] > 0)
 				{
+					if (!invoker.DynLight)
+					{
+						invoker.DynLight = PointLight(Spawn("PointLight", pos + (0, 0, height / 2 + 2)));
+					}
+					else
+					{
+						invoker.DynLight.Args[0] = 0xDF;
+						invoker.DynLight.Args[1] = 0xFF;
+						invoker.DynLight.Args[2] = 0x66;
+						invoker.DynLight.Args[3] = int(128 * (invoker.Charge / double(reqCharge * Tiers)));
+						invoker.DynLight.SetOrigin(pos + (0, 0, height / 2 + 2), true);
+					}
+
 					A_MuzzleClimb(frandom(-0.10, 0.10) * (1.7 ** tier), frandom(-0.10, 0.10) * (1.7 ** tier));
 
 					A_Overlay(-4, 'BlastCharge0', true);
@@ -336,16 +354,16 @@ class HDGungnir : HDCellWeapon
 			}
 			Goto ReadyEnd;
 		BlastCharge0:
-			GNC1 ABCDEFGHIJKLMNO 1 A_JumpIf(invoker.Charge / A_GetChargePerTier() == 1, 'BlastCharge1');
+			GNC1 ABCDEFGHIJKLMNO 1 Bright A_JumpIf(invoker.Charge / A_GetChargePerTier() == 1, 'BlastCharge1');
 			Loop;
 		BlastCharge1:
-			GNC1 ABCDEFGHIJKLMNO 1 A_JumpIf(invoker.Charge / A_GetChargePerTier() == 2, 'BlastCharge2');
+			GNC1 ABCDEFGHIJKLMNO 1 Bright A_JumpIf(invoker.Charge / A_GetChargePerTier() == 2, 'BlastCharge2');
 			Loop;
 		BlastCharge2:
-			GNC2 ABCDEFGHIJKL 1 A_JumpIf(invoker.Charge / A_GetChargePerTier() == 3, 'BlastCharge3');
+			GNC2 ABCDEFGHIJKL 1 Bright A_JumpIf(invoker.Charge / A_GetChargePerTier() == 3, 'BlastCharge3');
 			Loop;
 		BlastCharge3:
-			GNC3 ABCDBADC 1;
+			GNC3 ABCDBADC 1 Bright;
 			Loop;
 
 		Select0:
