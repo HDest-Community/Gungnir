@@ -725,6 +725,8 @@ class GungnirRaySpearSmoke : Actor
 
 	Default
 	{
+		Radius 5;
+		Height 10;
 		Scale 0.02;
 		RenderStyle "Shaded";
 		StencilColor "B0FF55";
