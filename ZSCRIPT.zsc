@@ -785,7 +785,7 @@ class GungnirMuzzleSmoke : GungnirRaySpearSmoke
 		+THRUACTORS
 		MaxStepHeight 8;
 		Scale 0.05;
-		Alpha 0.5;
+		Alpha 0.35;
 	}
 
 	States
