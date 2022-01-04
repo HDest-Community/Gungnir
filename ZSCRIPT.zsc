@@ -317,7 +317,7 @@ class HDGungnir : HDCellWeapon
 					}
 					else
 					{
-						A_OverlayScale(-4, 1.0 + (((invoker.Charge % reqCharge) / double(reqCharge))) * 0.60);
+						A_OverlayScale(-4, 1.0 + (((invoker.Charge % reqCharge) / double(reqCharge))) * 0.55);
 					}
 
 					if (level.time % 4 == 0)
@@ -357,16 +357,16 @@ class HDGungnir : HDCellWeapon
 			}
 			Goto ReadyEnd;
 		BlastCharge0:
-			GNC1 ABCDEFGHIJKLMNO 1 Bright A_JumpIf(invoker.Charge / A_GetChargePerTier() == 1, 'BlastCharge1');
+			GNC1 ABCDEFGHIJKLMNOPQRST 1 Bright A_JumpIf(invoker.Charge / A_GetChargePerTier() == 1, 'BlastCharge1');
 			Loop;
 		BlastCharge1:
-			GNC1 ABCDEFGHIJKLMNO 1 Bright A_JumpIf(invoker.Charge / A_GetChargePerTier() == 2, 'BlastCharge2');
+			GNC1 ABCDEFGHIJKLMNOPQRST 1 Bright A_JumpIf(invoker.Charge / A_GetChargePerTier() == 2, 'BlastCharge2');
 			Loop;
 		BlastCharge2:
-			GNC2 ABCDEFGHIJKL 1 Bright A_JumpIf(invoker.Charge / A_GetChargePerTier() == 3, 'BlastCharge3');
+			GNC2 ABCDEFGHIJKLMNOPQRST 1 Bright A_JumpIf(invoker.Charge / A_GetChargePerTier() == 3, 'BlastCharge3');
 			Loop;
 		BlastCharge3:
-			GNC3 ABCDBADC 1 Bright;
+			GNC3 ABCDEFGHIJKLMNOPQRST 1 Bright;
 			Loop;
 
 		Select0:
