@@ -580,7 +580,7 @@ class GungnirRayImpact : Actor abstract
 				// Horizontal ring.
 				for (int i = -180; i < 180; i += 4)
 				{
-					A_SpawnParticle(0x84FF44, SPF_FULLBRIGHT | SPF_RELATIVE, 10, 32, i, 0, 0, 0, 12, 0, 0);
+					A_SpawnParticle(0xAAFF42, SPF_FULLBRIGHT | SPF_RELATIVE, 10, 32, i, 0, 0, 0, 12, 0, 0);
 				}
 				
 				// Ball.
@@ -658,7 +658,7 @@ class GungnirRaySegment : Actor
 		Super.PostBeginPlay();
 		for (int i = 0; i < 2; ++i)
 		{
-			A_SpawnParticle(0x88FF44, SPF_RELATIVE | SPF_FULLBRIGHT, random(90, 150), frandom(1.5, 3.0), 0,random(-10, 10), 0, 0,
+			A_SpawnParticle(0xDFFF66, SPF_RELATIVE | SPF_FULLBRIGHT, random(90, 150), frandom(1.5, 3.0), 0,random(-10, 10), 0, 0,
 				frandom(-0.10, 0.10), frandom(-0.10, 0.10), frandom(-0.10, 0.10),
 				frandom(-0.005, 0.005), frandom(-0.005, 0.005), frandom(-0.005, 0.005));
 		}
@@ -738,7 +738,7 @@ class GungnirRaySpearSmoke : Actor
 		Height 10;
 		Scale 0.02;
 		RenderStyle "Shaded";
-		StencilColor "B0FF55";
+		StencilColor "D1FF47";
 		+BRIGHT
 		+NOINTERACTION
 		+NOBLOCKMAP
