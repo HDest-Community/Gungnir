@@ -227,7 +227,7 @@ class HDGungnir : HDCellWeapon
 		int minDamage, maxDamage;
 		switch (tier)
 		{
-			case 1: minDamage = 600; maxDamage = 900; break;
+			case 1: minDamage = 800; maxDamage = 1000; break;
 			case 2: minDamage = 2500; maxDamage = 3000; break;
 			case 3: minDamage = 10000; maxDamage = 12000; break;
 		}
@@ -553,8 +553,8 @@ class GungnirRandom : IdleDummy
 
 class GungnirRayImpact : Actor abstract
 {
-	protected abstract void OnBlast();
-	protected void SpawnBlastEffects(int tier)
+	protected abstract void OnBlast(bool miss);
+	protected void SpawnBlastEffects(int tier, bool miss)
 	{
 		// Horizontal ring.
 		for (int i = -180; i < 180; i += 4)
@@ -571,12 +571,15 @@ class GungnirRayImpact : Actor abstract
 			}
 		}
 
-		// Spears.
-		for (int i = 0; i < 10 * (tier + 1); ++i)
+		if (miss)
 		{
-			pitch = frandom(-85.0, 85.0);
-			double smokeVel = frandom(10 + 5 * tier, 20 + 10 * tier);
-			A_SpawnItemEx("GungnirRayImpactSpear", 0, 0, 0, smokeVel * cos(pitch), 0, smokeVel * sin(pitch), random(0, 359), SXF_NOCHECKPOSITION);
+			// Spears.
+			for (int i = 0; i < 10 * (tier + 1); ++i)
+			{
+				pitch = frandom(-85.0, 85.0);
+				double smokeVel = frandom(10 + 5 * tier, 20 + 10 * tier);
+				A_SpawnItemEx("GungnirRayImpactSpear", 0, 0, 0, smokeVel * cos(pitch), 0, smokeVel * sin(pitch), random(0, 359), SXF_NOCHECKPOSITION);
+			}
 		}
 	}
 
@@ -598,50 +601,53 @@ class GungnirRayImpact : Actor abstract
 	States
 	{
 		Spawn:
-			TNT1 A 16 NoDelay OnBlast();
+			TNT1 A 16 NoDelay OnBlast(false);
+			Stop;
+		Crash:
+			TNT1 A 16 OnBlast(true);
 			Stop;
 	}
 }
 
 class GungnirRayImpactT1 : GungnirRayImpact
 {
-	override void OnBlast()
+	override void OnBlast(bool miss)
 	{
 		DoorDestroyer.DestroyDoor(self, random(32, 140), random(8, 48)); 
 		A_Explode(random(100, 150), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
 		A_StartSound("Gungnir/RayHit", 8, attenuation: 0.5);
 		DistantQuaker.Quake(self, 2, 50, HDCONST_ONEMETRE * 30, 10, 256, 512, 128);
-		SpawnBlastEffects(0);
+		SpawnBlastEffects(0, miss);
 	}
 }
 
 class GungnirRayImpactT2 : GungnirRayImpact
 {
-	override void OnBlast()
+	override void OnBlast(bool miss)
 	{
 		DoorDestroyer.DestroyDoor(self, random(96, 280), random(32, 96)); 
 		A_Explode(random(250, 400), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
 		A_StartSound("Gungnir/RayHit", 8, attenuation: 0.2, pitch: 0.8);
 		DistantQuaker.Quake(self, 4, 50, HDCONST_ONEMETRE * 70, 10, 256, 512, 128);
-		SpawnBlastEffects(1);
+		SpawnBlastEffects(1, miss);
 	}
 }
 
 class GungnirRayImpactT3 : GungnirRayImpact
 {
-	override void OnBlast()
+	override void OnBlast(bool miss)
 	{
 		DoorDestroyer.DestroyDoor(self, random(384, 560), random(64, 192)); 
 		A_Explode(random(600, 800), int(HDCONST_ONEMETRE * 4), XF_HURTSOURCE, false, damageType: 'Electrical');
 		A_StartSound("Gungnir/RayHit", 8, attenuation: ATTN_NONE, pitch: 0.6);
 		DistantQuaker.Quake(self, 6, 50, HDCONST_ONEMETRE * 200, 10, 256, 512, 128);
-		SpawnBlastEffects(2);
+		SpawnBlastEffects(2, miss);
 	}
 }
 
 class GungnirRayImpactT3OP : GungnirRayImpactT3
 {
-	override void OnBlast()
+	override void OnBlast(bool miss)
 	{
 		let necro = Necromancer(tracer);
 		if (necro && !necro.bFRIENDLY)
@@ -650,7 +656,7 @@ class GungnirRayImpactT3OP : GungnirRayImpactT3
 			necro.A_ChangeNecroFlags(true);
 			necro.DamageMobj(self, target, 2000, 'Holy', DMG_FORCED);
 		}
-		Super.OnBlast();
+		Super.OnBlast(miss);
 	}
 }
 
