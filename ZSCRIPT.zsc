@@ -658,9 +658,32 @@ class GungnirRayImpactT3OP : GungnirRayImpactT3
 			}
 			necro.hitsleft = 0;
 			necro.A_ChangeNecroFlags(true);
-			necro.DamageMobj(self, target, 2000, 'Holy', DMG_FORCED);
+			necro.DamageMobj(self, target, 2000, 'Extreme', DMG_FORCED);
+			let forcer = new('CurseForcer');
+			forcer.Necro = necro;
 		}
 		Super.OnBlast(miss);
+	}
+}
+
+class CurseForcer : Thinker
+{
+	private int Ticker;
+	Necromancer Necro;
+	override void Tick()
+	{
+		Super.Tick();
+		if (!Necro)
+		{
+			Destroy();
+			return;
+		}
+		if (Ticker++ == 45)
+		{
+			Necro.SetStateLabel('ghost');
+			Destroy();
+			return;
+		}
 	}
 }
 
