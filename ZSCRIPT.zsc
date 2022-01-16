@@ -701,7 +701,7 @@ class GungnirRaySegment : Actor
 		if (target)
 		{
 			double dist = Distance3D(target);
-			alpha += 0.003 * (dist / 4.0);
+			alpha += 0.00075 * dist;
 		}
 	}
 
