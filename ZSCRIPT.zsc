@@ -371,7 +371,7 @@ class HDGungnir : HDCellWeapon
 
 		Select0:
 			GNGR A 0;
-			Goto Select0BFG;
+			Goto Select0Big;
 		Deselect0:
 			GNGR A 0
 			{
