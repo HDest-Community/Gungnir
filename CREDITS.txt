@@ -8,6 +8,7 @@ Sprites:
 Sounds:
 - Ribbon (https://gamebanana.com/sounds/31093)
 - Charging is from Bullet-Eye.
+- Locking is from Russian Overkill
 
 Name Idea:
 - Yholl

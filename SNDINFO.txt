@@ -1,3 +1,5 @@
 Gungnir/DeathRayFire GUNGRAY
 Gungnir/RayHit GNRAYHIT
 Gungnir/Charge GUNGCHRG
+Gungnir/Lock GUNGLOCK
+Gungnir/Unlock GUNGUNLK
