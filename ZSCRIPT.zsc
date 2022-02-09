@@ -453,7 +453,7 @@ class HDGungnir : HDCellWeapon
 		Reload:
 			#### A 0
 			{
-				if (invoker.weaponstatus[GNProp_Battery] >= 20 || !CheckInventory("HDBattery", 1))
+				if (invoker.WeaponStatus[GNProp_Battery] >= 20 || !CheckInventory("HDBattery", 1))
 				{
 					SetWeaponState("Nope");
 					return;
@@ -485,7 +485,7 @@ class HDGungnir : HDCellWeapon
 			{
 				A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
 				A_StartSound("weapons/bfgopen", 8);
-				if(invoker.WeaponStatus[GNProp_Battery] >= 0)
+				if (invoker.WeaponStatus[GNProp_Battery] >= 0)
 				{
 					if (PressingReload() || PressingUnload())
 					{
