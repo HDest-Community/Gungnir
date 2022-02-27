@@ -259,16 +259,6 @@ class HDGungnir : HDCellWeapon
 		A_ZoomRecoil(1.00 + 2 ** tier);
 		A_ResetWeapon();
 
-		static const int count[] = { 10, 25, 60 };
-		static const double vels[] = { 3, 10, 25 };
-
-		for (int i = 0; i < count[tier - 1]; ++i)
-		{
-			double sVel = frandom(0.1, vels[tier - 1]);
-			double rPitch = pitch + frandom(-2.5, 2.5);
-			A_SpawnItemEx('GungnirMuzzleSmoke', radius * cos(rPitch), 0, height - random(2, 10) + radius * sin(-rPitch), sVel * cos(rPitch), 0, sVel * sin(-rPitch), frandom(-7.5, 7.5), SXF_NOCHECKPOSITION);
-		}
-
 		double cMult = 1.0 + tier / 3.0;
 		A_MuzzleClimb(0, 0, -0.2 * cMult, -0.8 * cMult, -frandom(0.5, 0.9) * cMult, -frandom(3.2, 4.0) * cMult, -frandom(0.5, 0.9) * cMult, -frandom(3.2, 4.0) * cMult);
 		invoker.WeaponStatus[GNProp_Charge] -= tier;
@@ -779,13 +769,13 @@ class GungnirRayImpactSpear : Actor
 				vel *= 0.97;
 				vel.z -= 1.0 * Gravity;
 
-				A_SpawnItemEx("GungnirMuzzleSmoke");
+				A_SpawnItemEx("GungnirSmoke");
 			}
 			Loop;
 	}
 }
 
-class GungnirMuzzleSmoke : Actor
+class GungnirSmoke : Actor
 {
 	override void PostBeginPlay()
 	{
