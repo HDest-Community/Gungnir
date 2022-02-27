@@ -359,7 +359,7 @@ class HDGungnir : HDCellWeapon
 					if (JustPressed(BT_ALTATTACK))
 					{
 						invoker.Locked = !invoker.Locked;
-						A_StartSound("Gungnir/Lock", 9, pitch: invoker.Locked ? 1.25 : 1.0);
+						A_StartSound("Gungnir/"..(invoker.Locked ? "Lock" : "Unlock"), 9);
 					}
 					
 					if (tier > 0 && !invoker.HasReachedTier[tier - 1])
