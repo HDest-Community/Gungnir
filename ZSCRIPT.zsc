@@ -342,12 +342,13 @@ class HDGungnir : HDCellWeapon
 					let plr = HDPlayerPawn(self);
 					if (invoker.Charge < Tiers * reqCharge && tier < invoker.WeaponStatus[GNProp_Charge])
 					{
-						if (level.time % 4 == 0)
-						{
-							BFG9k.Spark(self, 1, height - 10);
-						}
 						if (!invoker.Locked || invoker.Charge % reqCharge != 0)
 						{
+							if (level.time % 4 == 0)
+							{
+								BFG9k.Spark(self, 1, height - 10);
+							}
+						
 							if (tier == 0 || tier > 0 && ++invoker.ChargeDelayTicker >= A_GetDelayPerTier())
 							{
 								invoker.Charge++;
