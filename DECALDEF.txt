@@ -1,6 +1,6 @@
 decal GungnirScorchBlack
 {
-	pic LFGSCR1
+	pic ACESCR1
 	shade "00 00 00"
 	x-scale 0.2
 	y-scale 0.2
@@ -10,7 +10,7 @@ decal GungnirScorchBlack
 
 decal GungnirScorch
 {
-	pic LFGSCR1
+	pic ACESCR1
 	shade "88 FF 00"
 	x-scale 0.1
 	y-scale 0.1
