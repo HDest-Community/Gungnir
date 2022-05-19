@@ -667,7 +667,7 @@ class GungnirRayImpactT3OP : GungnirRayImpactT3
 		let necro = Necromancer(tracer);
 		if (necro && !necro.bFRIENDLY)
 		{
-			for (int i = 0; i < 3 * necro.hitsleft; ++i)
+			for (int i = 0; i < 4 * necro.hitsleft; ++i)
 			{
 				necro.A_SpawnItemEx("BFGNecroShard", 0, 0, 42, flags: SXF_SETMASTER | SXF_TRANSFERPOINTERS);
 			}
