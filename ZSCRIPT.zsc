@@ -659,7 +659,7 @@ class GungnirRayImpactT3 : GungnirRayImpact
 		SpawnBlastEffects(2, miss);
 	}
 }
-
+/*
 class GungnirRayImpactT3OP : GungnirRayImpactT3
 {
 	override void OnBlast(bool miss)
@@ -701,7 +701,7 @@ class CurseForcer : Thinker
 		}
 	}
 }
-
+*/
 class GungnirRaySegment : Actor
 {
 	override void PostBeginPlay()
