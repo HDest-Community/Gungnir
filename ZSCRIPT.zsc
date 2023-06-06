@@ -177,19 +177,62 @@ class HDGungnir : HDCellWeapon
 		{
 			int ScaledYOffset = 60;
 			int ScaledWidth = 89;
+			vector2 ScaleHalf = (0.25, 0.25);
+			int cx, cy, cw, ch;
+			[cx, cy, cw, ch] = Screen.GetClipRect();
+			sb.SetClipRect(-44.5 + bob.x, 16 + bob.y, ScaledWidth, ScaledWidth, sb.DI_SCREEN_CENTER);
+
+			texman.setcameratotexture(hpc, "HDXCAM_BOSS", 5);
+			let cam  = texman.CheckForTexture("HDXCAM_BOSS",TexMan.Type_Any);
+			sb.DrawCircle(cam,(0,scaledyoffset)+bob*3,.11,usePixelRatio:true);
+
+			sb.DrawImage("HDXCAM_BOSS", (0, ScaledYOffset) + bob, sb.DI_SCREEN_CENTER |  sb.DI_ITEM_CENTER, scale: ScaleHalf);
+			sb.DrawImage("SCOPHOLE", (0, ScaledYOffset) + bob * 5, sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER, scale: (1.5, 1.5));
+			Screen.SetClipRect(cx, cy, cw, ch);
+			sb.DrawImage("GNRSCOPE", (0, ScaledYOffset) + bob, sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER, scale: (1.24, 1.24));
+		}
+	}
+
+/*
+	override void DrawSightPicture(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl, bool sightbob, vector2 bob, double fov, bool scopeview, actor hpc, string whichdot)
+	{
+		int cx, cy, cw, ch;
+		[cx, cy, cw, ch] = Screen.GetClipRect();
+		sb.SetClipRect(-16 + bob.x, -4 + bob.y, 32, 16, sb.DI_SCREEN_CENTER);
+		vector2 bobb = bob * 2;
+		bobb.y = clamp(bobb.y, -8, 8);
+		sb.DrawImage("GNGRFRNT", bobb, sb.DI_SCREEN_CENTER | sb.DI_ITEM_TOP, alpha: 0.9);
+		sb.SetClipRect(cx, cy, cw, ch);
+		sb.DrawImage("GNGRBACK", (0, 3) + bob, sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER);
+
+		if (scopeview)
+		{
+			int ScaledYOffset = 60;
+			int ScaledWidth = 89;
 			vector2 ScaleHalf = (0.5, 0.5);
 			int cx, cy, cw, ch;
 			[cx, cy, cw, ch] = Screen.GetClipRect();
 			sb.SetClipRect(-99 + bob.x, 16 + bob.y, ScaledWidth, ScaledWidth, sb.DI_SCREEN_CENTER);
+			
+			texman.setcameratotexture(hpc, "HDXCAM_ZM66", 5);
+			let cam  = texman.CheckForTexture("HDXCAM_ZM66",TexMan.Type_Any);
+			sb.DrawCircle(cam,(0,scaledyoffset)+bob*3,.11,usePixelRatio:true);
 
+			sb.DrawImage("HDXCAM_ZM66", (0, ScaledYOffset) + bob, sb.DI_SCREEN_CENTER |  sb.DI_ITEM_CENTER, scale: ScaleHalf);
+			sb.DrawImage("SCOPHOLE", (0, ScaledYOffset) + bob * 5, sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER, scale: (1.5, 1.5));
+			Screen.SetClipRect(cx, cy, cw, ch);
+			sb.DrawImage("GNRSCOPE", (0, ScaledYOffset) + bob, sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER, scale: (1.24, 1.24));
+			
+			
 			TexMan.SetCameraToTexture(hpc, "HDXHCAM3", 5);
 			sb.DrawImage("HDXHCAM3", (-55, ScaledYOffset) + bob, sb.DI_SCREEN_CENTER |  sb.DI_ITEM_CENTER, scale: ScaleHalf);
 			sb.DrawImage("SCOPHOLE", (-55, ScaledYOffset) + bob * 5, sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER, scale: (1.5, 1.5));
 			Screen.SetClipRect(cx, cy, cw, ch);
 			sb.DrawImage("GNRSCOPE", (-55, ScaledYOffset) + bob, sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER, scale: (1.24, 1.24));
+			
 		}
 	}
-
+	*/
 	private clearscope action int A_GetChargePerTier()
 	{
 		return invoker.WeaponStatus[GNProp_Flags] & GNF_Accelerator ? 5 : 10;
