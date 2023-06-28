@@ -721,7 +721,6 @@ class GungnirRayImpactT3OP : GungnirRayImpactT3
 		A_BFGBallZap();
 		A_BFGBallZap();
 		A_BFGBallZap();
-		}
 		Super.OnBlast(miss);
 	}
 }
