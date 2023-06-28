@@ -702,49 +702,30 @@ class GungnirRayImpactT3 : GungnirRayImpact
 		SpawnBlastEffects(2, miss);
 	}
 }
-/*
+
 class GungnirRayImpactT3OP : GungnirRayImpactT3
 {
 	override void OnBlast(bool miss)
 	{
-		let necro = Necromancer(tracer);
-		if (necro && !necro.bFRIENDLY)
-		{
-			for (int i = 0; i < 4 * necro.hitsleft; ++i)
-			{
-				necro.A_SpawnItemEx("BFGNecroShard", 0, 0, 42, flags: SXF_SETMASTER | SXF_TRANSFERPOINTERS);
-			}
-			necro.hitsleft = 0;
-			necro.A_ChangeNecroFlags(true);
-			necro.DamageMobj(self, target, 2000, 'Extreme', DMG_FORCED);
-			let forcer = new('CurseForcer');
-			forcer.Necro = necro;
+		DoorDestroyer.DestroyDoor(self, 384, 96, dedicated: true); 
+		A_Explode(random(2500, 3500), int(HDCONST_ONEMETRE * 5), XF_HURTSOURCE, false, damageType: 'Electrical');
+		A_StartSound("Gungnir/RayHit", 8, attenuation: ATTN_NONE, pitch: 0.6);
+		DistantQuaker.Quake(self, 6, 50, HDCONST_ONEMETRE * 200, 10, 256, 512, 128);
+		A_BFGBallZap();
+		A_BFGBallZap();
+		A_BFGBallZap();
+		A_BFGBallZap();
+		A_BFGBallZap();
+		A_BFGBallZap();
+		A_BFGBallZap();
+		A_BFGBallZap();
+		A_BFGBallZap();
+		A_BFGBallZap();
 		}
 		Super.OnBlast(miss);
 	}
 }
 
-class CurseForcer : Thinker
-{
-	private int Ticker;
-	Necromancer Necro;
-	override void Tick()
-	{
-		Super.Tick();
-		if (!Necro)
-		{
-			Destroy();
-			return;
-		}
-		if (Ticker++ == 45)
-		{
-			Necro.SetStateLabel('ghost');
-			Destroy();
-			return;
-		}
-	}
-}
-*/
 class GungnirRaySegment : Actor
 {
 	override void PostBeginPlay()
