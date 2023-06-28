@@ -86,7 +86,7 @@ class HDGungnirRayZapper : HDFireball
 	}
 	states{
 	spawn:
-		TNT1 A 0
+		TNT1 A 0;
 		APLS  AB 2 A_SpawnItemEx("GungnirRayZAPTail",0,0,0,vel.x*0.2,vel.y*0.2,vel.z*0.2,0,168,0);
 		APLS  A 0{
 			ballripdmg=random(10,50);
